@@ -31,16 +31,16 @@ Directory Manager password: ********
 Password (confirm): ********
 IPA admin password: ********
 Password (confirm): ********
-Do you want to configure DNS forwarders? [yes]: "Enter"
-Do you want to configure these servers as DNS forwarders? [yes]: "Enter"
-Enter an IP address for a DNS forwarder, or press Enter to skip: "Enter"
-Do you want to search for missing reverse zones? [yes]: "Enter"
-Do you want to create reverse zone for IP 192.168.9.139 [yes]: "Enter"
-Please specify the reverse zone name [9.168.192.in-addr.arpa.]: "Enter"
-Do you want to configure chrony with NTP server or pool address? [no]: yes
-Enter NTP source server addresses separated by comma, or press Enter to skip: "Enter"
-Enter a NTP source pool address, or press Enter to skip: "Enter"
-Continue to configure the system with these values? [no]: yes
+Do you want to configure DNS forwarders? [yes]: "Enter" |#|#| Настройка сервера пересылки DNS.
+Do you want to configure these servers as DNS forwarders? [yes]: "Enter" |#|#| Настроить эти серверы как серверы пересылки DNS.
+Enter an IP address for a DNS forwarder, or press Enter to skip: "Enter" |#|#| Введите IP-адрес сервера пересылки DNS или нажмите Enter, чтобы пропустить.
+Do you want to search for missing reverse zones? [yes]: "Enter" |#|#| Поиск недостающих обратных зон.
+Do you want to create reverse zone for IP 192.168.9.139 [yes]: "Enter" |#|#| Создание обратной зоны для IP 192.168.9.139.
+Please specify the reverse zone name [9.168.192.in-addr.arpa.]: "Enter" |#|#| Указание имени обратной зоны.
+Do you want to configure chrony with NTP server or pool address? [no]: yes |#|#| Настройка сервера времени(выборочно).
+Enter NTP source server addresses separated by comma, or press Enter to skip: "Enter" |#|#| Введите адреса исходного NTP-сервера через запятую или нажмите Enter, чтобы пропустить.
+Enter a NTP source pool address, or press Enter to skip: "Enter" |#|#| Введите адрес исходного пула NTP или нажмите Enter, чтобы пропустить.
+Continue to configure the system with these values? [no]: yes |#|#| Продолжать настраивать систему с этими значениями? (ДА!)
 
 Далее начнется конфигурирование сервера FreeIPA.
 ----------------------------------------------------------------------------------------------------------------------------------------------------
