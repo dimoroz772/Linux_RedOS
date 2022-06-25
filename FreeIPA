@@ -20,9 +20,27 @@ yum install -y bind bind-dyndb-ldap ipa-server ipa-server-dns ipa-server-trust-a
 ipa-server-install --mkhomedir |#|#| Запуск конфигурирования IPA-сервера.
 
 Do you want to configure integrated DNS (BIND)? [no]: yes |#|#| Настройка интрегрированного(уже созданного) DNS(BIND) сервера.
------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------
 Если команда "hostnamectl set-hostname dc1.freeipa.local" была выполнена ранее, то в следующем пункте не должно быть никаких проблем.
------------------------------------------------------
-Server host name [dc1.freeipa.local]: "Enter" |#|#| Задание имени хоста серверу.
+----------------------------------------------------------------------------------------------------------------------------------------------------
+Server host name [dc1.freeipa.local]: "Enter" |#|#| Подтверждение имени хоста сервера.
 Please confirm the domain name [freeipa.local]: "Enter" |#|#| Подтверждение доменного имени.
-Please provide a realm name [EXAMPLE.RU]: "Enter" |#|#| Подтверждение названия области.
+Please provide a realm name [FREEIPA.LOCAL]: "Enter" |#|#| Подтверждение названия области.
+----------------------------------------------------------------------------------------------------------------------------------------------------
+Directory Manager password: ********
+Password (confirm): ********
+IPA admin password: ********
+Password (confirm): ********
+Do you want to configure DNS forwarders? [yes]: "Enter"
+Do you want to configure these servers as DNS forwarders? [yes]: "Enter"
+Enter an IP address for a DNS forwarder, or press Enter to skip: "Enter"
+Do you want to search for missing reverse zones? [yes]: "Enter"
+Do you want to create reverse zone for IP 192.168.9.139 [yes]: "Enter"
+Please specify the reverse zone name [9.168.192.in-addr.arpa.]: "Enter"
+Do you want to configure chrony with NTP server or pool address? [no]: yes
+Enter NTP source server addresses separated by comma, or press Enter to skip: "Enter"
+Enter a NTP source pool address, or press Enter to skip: "Enter"
+Continue to configure the system with these values? [no]: yes
+
+Далее начнется конфигурирование сервера FreeIPA.
+----------------------------------------------------------------------------------------------------------------------------------------------------
