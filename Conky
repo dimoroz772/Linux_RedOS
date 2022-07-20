@@ -121,6 +121,8 @@ double_buffer = true, |#|#| Включчение двойной буфериза
 
 ${color white}Uptime:$color $uptime |#|#| Время безотказной работы/Время с момента запуска устройства.
 
+CPU: ${acpitemp}°C |#|#| Температура процессора.
+
 ${color white}Frequency (in MHz):$color $freq |#|#| Частота в MHz.
 
 ${color white}Frequency (in GHz):$color $freq_g |#|#| Частота в GHz.
