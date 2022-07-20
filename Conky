@@ -69,6 +69,7 @@ conky.config = {
 
 conky.text = [[
 ${color white}Uptime:$color $uptime
+CPU: ${acpitemp}°C
 ${color white}Frequency (in MHz):$color $freq
 ${color white}Frequency (in GHz):$color $freq_g
 ${color white}RAM Usage:$color $mem/$memmax - $memperc% ${membar 4}
