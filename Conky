@@ -80,6 +80,7 @@ $hr
 ${color white}File systems:
  / $color${fs_used /}/${fs_size /} ${fs_bar 6 /}
 ${color white}Networking:
+${color white}IP адрес:$color ${addr VLAN3}
 Up:$color ${upspeed} ${color white} - Down:$color ${downspeed}
 ${color red}$hr
 ${color red}Пользователи: $user_names
@@ -142,6 +143,8 @@ ${color white}File systems: |#|#| Текст: File systems(Файловые си
  / $color${fs_used /}/${fs_size /} ${fs_bar 6 /} |#|#| Индикация файловой системы (сколько пространства занято/свободно).
  
  ${color white}Networking: |#|#| Текст: Networking(Сеть).
+ 
+ ${color white}IP адрес:$color ${addr VLAN3} |#|#| IP-адрес VLAN3(вместо "VLAN3" прописываете свой интерфейс).
  
  Up:$color ${upspeed} ${color white} - Down:$color ${downspeed} |#|#| Прием и отдача трафика.
  
