@@ -25,4 +25,109 @@ cp /usr/share/syslinux/ldlinux.c32 /var/lib/tftpboot/
 cp /usr/share/syslinux/libutil.c32 /var/lib/tftpboot/
 chmod 777 /var/lib/tftpboot/pxelinux.0 |#|#| Выдача полных прав доступа для владельца файла, участников группы и всех остальных.
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Копируем нужные нам файлы для запуска установки ОС RedOS 7.3.1 по сети в режиме UEFI:
+Выполняем последовательность команд для запуска установки ОС RedOS 7.3.1 по сети в режиме UEFI:
+dnf download shim-x64 grub2-efi-x64 --downloaddir=/root/
+cd /root/
+rpm2cpio shim-x64-*.rpm | cpio -dimv
+rpm2cpio grub2-efi-x64-*.rpm | cpio -dimv
+cp ./boot/efi/EFI/BOOT/BOOTX64.EFI /var/lib/tftpboot/uefi
+cp ./boot/efi/EFI/redos/grubx64.efi /var/lib/tftpboot/uefi
+chmod 777 /var/lib/tftpboot/uefi/*.*
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Копируем все файлы из iso-образа RedOS 7.3.1 в каталог /var/lib/tftpboot/images/REDOS
+cp -vR "/run/media/user/redos-MUROM-7.3.1 x86_64/." /var/lib/tftpboot/images/REDOS
+mount -t iso9660 -o loop redos-MUROM-7.2-x86_64-DVD1.iso /mnt/ |#|#| Монтирование образа
+cp -vR /mnt/* /var/lib/tftpboot/images/REDOS/ |#|#| Копирование файлов
+umount /mnt/ |#|#| Размонтировать образ
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Настройка DHCP-Server-@
+nano /etc/dhcp/dhcpd.conf |#|#| Переходим в редактирование конфигурационного файла dhcpd.conf
+Далее прописываем следующий конфиг:
+
+non-authoritative;
+allow bootp;
+option space pxelinux;
+option pxelinux.magic code 208 = string;
+option pxelinux.configfile code 209 = text;
+option pxelinux.pathprefix code 210 = text;
+option pxelinux.reboottime code 211 = unsigned integer 32;
+option architecture-type code 93 = unsigned integer 16;
+
+subnet 192.168.2.0 netmask 255.255.255.0 {
+        option routers 192.168.2.2;
+        range 192.168.2.70 192.168.2.80;
+
+        class "pxeclients" {
+          match if substring (option vendor-class-identifier, 0, 9) = "PXEClient";
+          next-server 192.168.2.2;
+          if option architecture-type = 00:07 {
+             filename "uefi/grubx64.efi";
+             } 
+          else {
+               filename "pxelinux.0";
+          }
+   }
+}
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+systemctl enable dhcpd |#|#| Добавление службы dhcpd в автозапуск
+systemctl start dhcpd |#|#| Запуск службы dhcpd
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Создание загрузочного меню для сетевой установки ОС RedOS 7.3.1 в режиме Legacy
+nano /var/lib/tftpboot/pxelinux.cfg/default |#|#| Редактирование конфигурационного файла default
+Далее прописываем следующий конфиг(адрес 192.168.2.2 меняем на тот, с которого загружается образ):
+
+default menu.c32
+PROMPT 0
+TIMEOUT 150
+MENU TITLE PXE Menu
+LABEL REDOS 7.3
+MENU LABEL REDOS 7.3
+KERNEL images/REDOS/images/pxeboot/vmlinuz
+APPEND initrd=images/REDOS/images/pxeboot/initrd.img ramdisk_size=128000 ip=dhcp inst.repo=http://192.168.2.2/images/REDOS/
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Создание загрузочного меню для сетевой установки ОС RedOS 7.3.1 в режиме UEFI
+nano /var/lib/tftpboot/uefi/grub.cfg |#|#| Редактирование конфигурационного файла grub.cfg
+Далее прописываем следующий конфиг(адрес 192.168.2.2 меняем на тот, с которого загружается образ):
+
+function load_video {
+        insmod efi_gop
+        insmod efi_uga
+        insmod video_bochs
+        insmod video_cirrus
+        insmod all_video
+}
+
+load_video
+set gfxpayload=keep
+insmod gzio
+
+menuentry 'REDOS 7.3' {
+        linux images/REDOS/images/pxeboot/vmlinuz ip=dhcp inst.repo=http://192.168.2.2/images/REDOS/
+        initrd images/REDOS/images/pxeboot/initrd.img
+}
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Конфигурирование Web-Server-@ HTTPD
+nano /etc/httpd/conf.d/pxeboot.conf |#|#| Создание и редактирование конфигурационного файла pxeboot.conf
+Далее прописываем следующий конфиг:
+
+Alias /images /var/lib/tftpboot/images
+<Directory /var/lib/tftpboot/images>
+    Options Indexes FollowSymLinks
+    # access permission
+    Require ip 127.0.0.1 192.168.2.0/24
+</Directory>
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+systemctl enable httpd |#|#| Добавление службы httpd в автозапуск
+systemctl start httpd |#|#| Запуск службы httpd
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Настройка и запуск службы TFTP
+nano /usr/lib/systemd/system/tftp.service |#|#| Редактирование конфигурационного файла tftp.service
+В секцию [Install], перед строкой "Also=tftp.socket" нужно добавить строку "WantedBy=multi-user.target"
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+systemctl enable tftp |#|#| Добавление службы tftp в автозапуск
+systemctl start tftp |#|#| Запуск службы tftp
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Если selinux находится в статусе enforcing, то создайте модуль политики безопасности selinux, для разрешения доступа с клиентов к web-серверу, который участвует в установке РЕД ОС по сети.
+ausearch -c 'httpd' --raw | audit2allow -M my-httpd
+semodule -i my-httpd.pp
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
