@@ -96,7 +96,7 @@ DOMAIN SID:S-1-5-21-4010603892-1310842104-1159347701
 -----------------------------------------------------------------------------------------------------------------
 nano /etc/samba/smb.conf |#|#| В файле smb.conf, раздел [global] нужно привести к следующему виду:
 [global]
-dns forwarder = 77.88.88.8
+dns forwarder = 192.168.88.165
 netbios name = DC1
 realm= TEST.LOCAL
 server role = active directory domain controller
