@@ -45,7 +45,7 @@ Realm [TEST.LOCAL]:
 Domain [TEST]:
 Server Role (dc, member, standalone) [dc]: dc
 DNS backend (SAMBA_INTERNAL, BIND9_FLATFILE, BIND9_DLZ, NONE) [SAMBA_INTERNAL]:
-DNS forwarder IP address (write 'none' to disable forwarding) [77.88.8.88]:
+DNS forwarder IP address (write 'none' to disable forwarding) [77.88.8.88]: 192.168.88.165
 Administrator password:
 Retype password:
 Looking up IPv4 addresses
