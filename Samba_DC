@@ -40,7 +40,7 @@ search test.local
 nameserver 77.88.8.88
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 samba-tool domain provision --use-rfc2307 --interactive |#|#| Запуск конфигурирования Samba в роли контроллера домена в интерактивном режиме.
-
+------------
 Realm [TEST.LOCAL]:
 Domain [TEST]:
 Server Role (dc, member, standalone) [dc]: dc
@@ -48,76 +48,100 @@ DNS backend (SAMBA_INTERNAL, BIND9_FLATFILE, BIND9_DLZ, NONE) [SAMBA_INTERNAL]:
 DNS forwarder IP address (write 'none' to disable forwarding) [77.88.8.88]: 192.168.88.165
 Administrator password:
 Retype password:
-Looking up IPv4 addresses
-Looking up IPv6 addresses
-No IPv6 address will be assigned
-Setting up share.ldb
-Setting up secrets.ldb
-Setting up the registry
-Setting up the privileges database
-Setting up idmap db
-Setting up SAM db
-Setting up sam.ldb partitions and settings
-Setting up sam.ldb rootDSE
-Pre-loading the Samba 4 and AD schema
+INFO 2023-02-03 12:55:46,492 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2108: Looking up IPv4 addresses
+INFO 2023-02-03 12:55:46,494 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2125: Looking up IPv6 addresses
+WARNING 2023-02-03 12:55:46,495 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2132: No IPv6 address will be assigned
+INFO 2023-02-03 12:55:46,755 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2274: Setting up share.ldb
+INFO 2023-02-03 12:55:46,771 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2278: Setting up secrets.ldb
+INFO 2023-02-03 12:55:46,783 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2283: Setting up the registry
+INFO 2023-02-03 12:55:46,825 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2286: Setting up the privileges database
+INFO 2023-02-03 12:55:46,847 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2289: Setting up idmap db
+INFO 2023-02-03 12:55:46,862 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2296: Setting up SAM db
+INFO 2023-02-03 12:55:46,867 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #880: Setting up sam.ldb partitions and settings
+INFO 2023-02-03 12:55:46,868 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #892: Setting up sam.ldb rootDSE
+INFO 2023-02-03 12:55:46,871 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1305: Pre-loading the Samba 4 and AD schema
 Unable to determine the DomainSID, can not enforce uniqueness constraint on local domainSIDs
-Adding DomainDN: DC=skynet,DC=murom
-Adding configuration container
-Setting up sam.ldb schema
-Setting up sam.ldb configuration data
-Setting up display specifiers
-Modifying display specifiers and extended rights
-Adding users container
-Modifying users container
-Adding computers container
-Modifying computers container
-Setting up sam.ldb data
-Setting up well known security principals
-Setting up sam.ldb users and groups
-Setting up self join
-Adding DNS accounts
-Creating CN=MicrosoftDNS,CN=System,DC=skynet,DC=murom
-Creating DomainDnsZones and ForestDnsZones partitions
-Populating DomainDnsZones and ForestDnsZones partitions
-Setting up sam.ldb rootDSE marking as synchronized
-Fixing provision GUIDs
-The Kerberos KDC configuration for Samba AD is located at /var/lib/samba/private/kdc.conf
-A Kerberos configuration suitable for Samba AD has been generated at /var/lib/samba/private/krb5.conf
-Merge the contents of this file with your system krb5.conf or replace it with this one. Do not create a symlink!
-Setting up fake yp server settings
-Once the above files are installed, your Samba AD server will be ready to use
-Server Role: active directory domain controller
-Hostname:dc1
-NetBIOS Domain:SKYNET
-DNS Domain: skynet.murom
-DOMAIN SID:S-1-5-21-4010603892-1310842104-1159347701
+
+INFO 2023-02-03 12:55:46,909 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1383: Adding DomainDN: DC=test,DC=local
+INFO 2023-02-03 12:55:46,922 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1415: Adding configuration container
+INFO 2023-02-03 12:55:46,933 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1430: Setting up sam.ldb schema
+INFO 2023-02-03 12:55:49,421 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1448: Setting up sam.ldb configuration data
+INFO 2023-02-03 12:55:49,554 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1489: Setting up display specifiers
+INFO 2023-02-03 12:55:51,254 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1497: Modifying display specifiers and extended rights
+INFO 2023-02-03 12:55:51,287 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1504: Adding users container
+INFO 2023-02-03 12:55:51,288 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1510: Modifying users container
+INFO 2023-02-03 12:55:51,289 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1513: Adding computers container
+INFO 2023-02-03 12:55:51,290 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1519: Modifying computers container
+INFO 2023-02-03 12:55:51,291 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1523: Setting up sam.ldb data
+INFO 2023-02-03 12:55:51,397 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1553: Setting up well known security principals
+INFO 2023-02-03 12:55:51,435 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1567: Setting up sam.ldb users and groups
+INFO 2023-02-03 12:55:51,552 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1575: Setting up self join
+Repacking database from v1 to v2 format (first record CN=ms-SPP-Installation-Id,CN=Schema,CN=Configuration,DC=test,DC=local)
+Repack: re-packed 10000 records so far
+Repacking database from v1 to v2 format (first record CN=interSiteTransport-Display,CN=C04,CN=DisplaySpecifiers,CN=Configuration,DC=test,DC=local)
+Repacking database from v1 to v2 format (first record CN=ipsecNFA{59319BE2-5EE3-11D2-ACE8-0060B0ECCA17},CN=IP Security,CN=System,DC=test,DC=local)
+INFO 2023-02-03 12:55:52,602 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/sambadns.py #1200: Adding DNS accounts
+INFO 2023-02-03 12:55:52,619 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/sambadns.py #1234: Creating CN=MicrosoftDNS,CN=System,DC=test,DC=local
+INFO 2023-02-03 12:55:52,634 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/sambadns.py #1247: Creating DomainDnsZones and ForestDnsZones partitions
+INFO 2023-02-03 12:55:52,677 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/sambadns.py #1252: Populating DomainDnsZones and ForestDnsZones partitions
+Repacking database from v1 to v2 format (first record DC=j.root-servers.net,DC=RootDNSServers,CN=MicrosoftDNS,DC=DomainDnsZones,DC=test,DC=local)
+Repacking database from v1 to v2 format (first record DC=_kerberos._tcp.Default-First-Site-Name._sites.dc,DC=_msdcs.test.local,CN=MicrosoftDNS,DC=ForestDnsZones,DC=test,DC=local)
+INFO 2023-02-03 12:55:52,849 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2012: Setting up sam.ldb rootDSE marking as synchronized
+INFO 2023-02-03 12:55:52,852 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2017: Fixing provision GUIDs
+INFO 2023-02-03 12:55:53,923 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2348: A Kerberos configuration suitable for Samba AD has been generated at /var/lib/samba/private/krb5.conf
+INFO 2023-02-03 12:55:53,923 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2350: Merge the contents of this file with your system krb5.conf or replace it with this one. Do not create a symlink!
+INFO 2023-02-03 12:55:53,967 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2082: Setting up fake yp server settings
+INFO 2023-02-03 12:55:54,024 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #487: Once the above files are installed, your Samba AD server will be ready to use
+INFO 2023-02-03 12:55:54,024 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #492: Server Role:           active directory domain controller
+INFO 2023-02-03 12:55:54,024 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #493: Hostname:              dc1
+INFO 2023-02-03 12:55:54,024 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #494: NetBIOS Domain:        TEST
+INFO 2023-02-03 12:55:54,024 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #495: DNS Domain:            test.local
+INFO 2023-02-03 12:55:54,024 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #496: DOMAIN SID:            S-1-5-21-25273870-955602320-113037211
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 После окончания конфигурирования контроллера домена, нужно зайти в настройки сетевого интерфейса и встроке "Серверы DNS" поменять адрес 77.88.8.88 на 192.168.88.165.
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 nano /etc/samba/smb.conf |#|#| В файле smb.conf, раздел [global] нужно привести к следующему виду:
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 [global]
-log level = 3
-dns forwarder = 192.168.88.165
-netbios name = DC1
-realm= TEST.LOCAL
-server role = active directory domain controller
-workgroup= TEST
-idmap_ldb:use rfc2307 = yes
-vfs objects = dfs_samba4 acl_xattr
-map acl inherit = yes
-store dos attributes = yes
-allow dns updates = nonsecure
-nsupdate command = /usr/bin/nsupdate -g
-dsdb:schema update allowed = true
-
-[netlogon]
-path = /var/lib/samba/sysvol/skynet.murom/scripts
-read only = No 
+        log level = 3
+        dns forwarder = 192.168.88.165
+        netbios name = DC1
+        realm= TEST.LOCAL
+        server role = active directory domain controller
+        workgroup= TEST
+        idmap_ldb:use rfc2307 = yes
+        vfs objects = dfs_samba4 acl_xattr
+        map acl inherit = yes
+        store dos attributes = yes
+        allow dns updates = nonsecure
+        nsupdate command = /usr/bin/nsupdate -g
+        dsdb:schema update allowed = true
+        security = user
+        map to guest = bad user
+        wins support = no
+        dns proxy = no
 
 [sysvol]
-path = /var/lib/samba/sysvol
-read only = No
+        path = /var/lib/samba/sysvol
+        read only = No
+
+[netlogon]
+	path = /var/lib/samba/sysvol/test.local/scripts
+        read only = No
+
+[public]
+        path = /samba/public
+        guest ok = yes
+        force user = nobody
+        browsable = yes
+        writable = yes
+
+[private]
+	path = /samba/private
+        valid users = @smbgrp
+        guest ok = no
+        browsable = yes
+        writable = yes
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 testparm |#|#| Команда для проверки работоспособности файла "smb.conf" в каталоге "/etc/samba/"
 При хорошем раскладе вывод должен быть таким: 
