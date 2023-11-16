@@ -4,12 +4,12 @@
 </p><br/>
 <h1 align="Center"><i>Linux RedOS</i></h1>
  <br/>
-<i> <a href="https://github.com/dimoroz772/Linux_RedOS/blob/main/Samba_DC"><b>Samba4 DC</b></a><br/><i/>
+<i> <a href="https://github.com/dimoroz772/Linux_RedOS/blob/Website/Samba_DC"><b>Samba4 DC</b></a><br/><i/>
  <br/>
-<i> <a href="https://github.com/dimoroz772/Linux_RedOS/blob/main/FreeIPA"><b>FreeIPA</b></a><br/><i/>
+<i> <a href="https://github.com/dimoroz772/Linux_RedOS/blob/Website/FreeIPA"><b>FreeIPA</b></a><br/><i/>
  <br/>
-<i> <a href="https://github.com/dimoroz772/Linux_RedOS/blob/main/Conky"><b>Conky</b></a><br/><i/>
+<i> <a href="https://github.com/dimoroz772/Linux_RedOS/blob/Website/Conky"><b>Conky</b></a><br/><i/>
  <br/>
-<i> <a href="https://github.com/dimoroz772/Linux_RedOS/blob/main/PXE-Server"><b>PXE-Server</b></a><br/><i/>
+<i> <a href="https://github.com/dimoroz772/Linux_RedOS/blob/Website/PXE-Server"><b>PXE-Server</b></a><br/><i/>
  <br/>
-<i> <a href="https://github.com/dimoroz772/Linux_RedOS/blob/main/Creating_VLAN_Interfaces"><b>Creating VLAN Interfaces</b></a><br/><i/>
+<i> <a href="https://github.com/dimoroz772/Linux_RedOS/blob/Website/Creating_VLAN_Interfaces"><b>Creating VLAN Interfaces</b></a><br/><i/>
