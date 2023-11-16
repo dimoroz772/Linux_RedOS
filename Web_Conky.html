@@ -1,0 +1,394 @@
+<head>
+  <title>Conky</title>
+  <link rel="shortcut icon" href="./logo.png" type="image/png">
+</head>
+ <head>
+  <meta charset="utf-8">
+ </head>
+<style>
+body{
+    background-image: url('fon_redos2.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    color: #333;
+}
+a {
+    text-decoration: none;
+}
+p {
+  text-indent: 1.5em;
+  text-align: justify;
+}
+</style>
+<style> 
+  table{
+  border: 1px black solid;
+  }
+  th, td {
+    border: 1px solid grey; /*  бахнуть на rgba(255,255,0,0); */
+  }
+</style>
+  
+<br/>
+<p align="center">
+<Center>
+<img src="./logo.png" width="400" height="150"/>
+</Center>
+</p><br/>
+ <br/>
+ <br/>
+<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">Всем привет! В данном посте рассматривается установка/настройка программы для системного мониторинга - <i style="color:rgb(255, 0, 0)">Conky</i>.</p></i></h3>
+<h2><i style="color:rgb(255, 0, 0)"><p align="Center">Все описанные ниже действия в командной строке выполнялись под пользователем root.</p></i></h2>
+<table>
+  <tbody>
+   <tr>
+    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># yum install -y conky</i></b></td>
+    <td align="Left" style="color:#1100ff" width="600px"><b><i>Команда для установка пакета <i style="color:rgb(255, 0, 0)">Conky</i>.</i></b></td>
+   </tr>
+   <tr>
+    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># cp /etc/conky/conky.conf /etc/conky/conky.default</i></b></td>
+    <td align="Left" style="color:#1100ff" width="600px"><b><i>Скопируем файл <i style="color:rgb(255, 0, 0)">conky.conf</i> с дефолтными настройками <i style="color:rgb(255, 0, 0)">Conky</i> в тот же каталог, но с измененным именем <i style="color:rgb(255, 0, 0)">conky.default</i>.</i></b></td>
+   </tr>
+   <tr>
+    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># nano /etc/conky/conky.conf</i></b></td>
+    <td align="Left" style="color:#1100ff" width="600px"><b><i>Открываем файл конфигурации <i style="color:rgb(255, 0, 0)">conky.conf</i> в текстовом редакторе <i style="color:rgb(255, 0, 0)">nano</i> и меняем конфиг на тот, что выложен ниже.</i></b></td>
+   </tr>
+   <tr>
+    <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:rgb(162, 0, 255)">
+      -- Conky, a system monitor https://github.com/brndnmtthws/conky<br/>
+      --<br/>
+      -- This configuration file is Lua code. You can write code in here, and it will<br/>
+      -- execute when Conky loads. You can use it to generate your own advanced<br/>
+      -- configurations.<br/>
+      --<br/>
+      -- Try this (remove the `--`):<br/>
+      --<br/>
+      --   print("Loading Conky config")<br/>
+      --<br/>
+      -- For more on Lua, see:<br/>
+      -- https://www.lua.org/pil/contents.html<br/>
+      <br/>
+      conky.config = {<br/>
+          alignment = 'bottom_right',<br/>
+          background = false,<br/>
+          border_width = 1,<br/>
+          cpu_avg_samples = 2,<br/>
+          default_color = 'white',<br/>
+          default_outline_color = 'white',<br/>
+          default_shade_color = 'white',<br/>
+          double_buffer = true,<br/>
+          draw_borders = false,<br/>
+          draw_graph_borders = true,<br/>
+          draw_outline = false,<br/>
+          draw_shades = false,<br/>
+          extra_newline = false,<br/>
+          font = 'DejaVu Sans Mono:size=9',<br/>
+          gap_x = 10,<br/>
+          gap_y = 10,<br/>
+          minimum_height = 5,<br/>
+          minimum_width = 5,<br/>
+          net_avg_samples = 2,<br/>
+          no_buffers = true,<br/>
+          out_to_console = false,<br/>
+          out_to_ncurses = false,<br/>
+          out_to_stderr = false,<br/>
+          out_to_x = true,<br/>
+          own_window = true,<br/>
+          own_window_class = 'Conky',<br/>
+          own_window_type = 'dock',<br/>
+          own_window_argb_visual = yes,<br/>
+          own_window_argb_value = 255,<br/>
+          own_window_argb_visual = true;<br/>
+          own_window_colour = '171717';<br/>
+          own_window_argb_value = 150;<br/>
+          show_graph_range = false,<br/>
+          show_graph_scale = false,<br/>
+          stippled_borders = 0,<br/>
+          update_interval = 0.1,<br/>
+          uppercase = false,<br/>
+          use_spacer = 'none',<br/>
+          use_xft = true,<br/>
+      }<br/>
+      <br/>
+      conky.text = [[<br/>
+      ${color white}Uptime:$color $uptime<br/>
+      CPU: ${acpitemp}°C<br/>
+      ${color white}Frequency (in MHz):$color $freq<br/>
+      ${color white}Frequency (in GHz):$color $freq_g<br/>
+      ${color white}RAM Usage:$color $mem/$memmax - $memperc% ${membar 4}<br/>
+      ${color white}Swap Usage:$color $swap/$swapmax - $swapperc% ${swapbar 4}<br/>
+      ${color white}CPU Usage:$color $cpu% ${cpubar 4}<br/>
+      ${color white}Processes:$color $processes  ${color grey}Running:$color $running_processes<br/>
+      $hr<br/>
+      ${color white}File systems:<br/>
+       / $color${fs_used /}/${fs_size /} ${fs_bar 6 /}<br/>
+      ${color white}Networking:<br/>
+      ${color white}IP адрес:$color ${addr VLAN3}<br/>
+      Up:$color ${upspeed} ${color white} - Down:$color ${downspeed}<br/>
+      ${color red}$hr<br/>
+      ${color red}Пользователи: $user_names<br/>
+      $hr<br/>
+      ${color white}Name              PID     CPU%   MEM%<br/>
+      ${color white} ${top name 1} ${top pid 1} ${top cpu 1} ${top mem 1}<br/>
+      ${color white} ${top name 2} ${top pid 2} ${top cpu 2} ${top mem 2}<br/>
+      ${color white} ${top name 3} ${top pid 3} ${top cpu 3} ${top mem 3}<br/>
+      ${color white} ${top name 4} ${top pid 4} ${top cpu 4} ${top mem 4}<br/>
+      ]]<br/></i></th>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>Ctrl + O</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Сохраняем изменения в файле нажав на Enter.</i></b></td>
+     </tr>
+     <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>Ctrl + X</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Выходим из текстового редактора nano нажав на Enter.</i></b></td>
+     </tr>
+  </tbody>
+</table>
+<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">Пояснение к вышенаписанному конфигу <i style="color:rgb(255, 0, 0)">Conky</i>:</p></i></h3>
+<table>
+  <tbody>
+    <tr>
+      <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:#1100ff">Строки отвечающие за прозрачность:
+      <br/>
+      <br/><i style="color:rgb(162, 0, 255)">
+        own_window_argb_visual = true,<br/>
+        own_window_colour = '171717',<br/>
+        own_window_argb_value = 150,</i></th>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>alignment = 'bottom_right',</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Расположение виджета<i style="color:rgb(255, 0, 0)">(справа внизу)</i>.</i></b></td>
+     </tr>
+     <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>gap_x = 10,</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Отступ от края по горизонтали.</i></b></td>
+     </tr>
+     <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>gap_y = 10,</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Отступ от края по вертикали.</i></b></td>
+     </tr>
+     <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>font = 'DejaVu Sans Mono:size=9',</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Настройка шрифта и размера.</i></b></td>
+     </tr>
+     <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>update_interval = 0.1,</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Интервал обновления данных<i style="color:rgb(255, 0, 0)">(0.1 секунды)</i>.</i></b></td>
+     </tr>
+     <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>double_buffer = true,</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Включчение двойной буферизации для того, чтобы виджет при обновлении не мерцал.</i></b></td>
+     </tr>
+     <tr>
+      <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:#1100ff">Конфигурация текста, которая выводится в виджете:
+      <br/>
+      <br/><i style="color:rgb(162, 0, 255)">
+      <i style="color:rgb(255, 0, 0)">Конфигурация текста осталась почти без изменения, был поменян цвет текста и добавлена строка с открытыми на данный момент сессиями на данном устройстве.</i></th>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>${color white}Uptime:$color $uptime</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Время безотказной работы/время с момента запуска устройства.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>CPU: ${acpitemp}°C</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Температура процессора.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>${color white}Frequency (in MHz):$color $freq</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Частота в <i style="color:rgb(255, 0, 0)">MHz</i>.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>${color white}Frequency (in GHz):$color $freq_g</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Частота в <i style="color:rgb(255, 0, 0)">GHz</i>.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>${color white}RAM Usage:$color $mem/$memmax - $memperc% ${membar 4}</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Сколько оперативной памяти используется на данный момент.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>${color white}Swap Usage:$color $swap/$swapmax - $swapperc% ${swapbar 4}</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Сколько используется файлов подкачки на данный момент.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>${color white}CPU Usage:$color $cpu% ${cpubar 4}</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Нагруженность <i style="color:rgb(255, 0, 0)">ЦП</i> на данный момент.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>${color white}Processes:$color $processes  ${color grey}Running:$color $running_processes</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Запущенные процессы.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>$hr</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Черта.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>${color white}File systems:</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Текст: <i style="color:rgb(255, 0, 0)">File systems(Файловые системы)</i>.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>/ $color${fs_used /}/${fs_size /} ${fs_bar 6 /}</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Индикация файловой системы <i style="color:rgb(255, 0, 0)">(сколько пространства занято/свободно)</i>.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>${color white}Networking:</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Текст: <i style="color:rgb(255, 0, 0)">Networking(Сеть)</i>.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>${color white}IP адрес:$color ${addr VLAN3}</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i><i style="color:rgb(255, 0, 0)">IP</i>-адрес <i style="color:rgb(255, 0, 0)">VLAN3(вместо "VLAN3" прописываете свой интерфейс)</i>.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>Up:$color ${upspeed} ${color white} - Down:$color ${downspeed}</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Прием и отдача трафика.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>$hr</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Черта.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>${color red}Пользователи: $user_names</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Строка открытых сессий. Отображает пользователя, под которым выполнен вход в систему, также отображает <i style="color:rgb(255, 0, 0)">ssh</i>-соединения к нашему устройству.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>$hr</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Черта.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>${color white}Name              PID     CPU%   MEM%</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Столбцы с текстами: <i style="color:rgb(255, 0, 0)">Name(Имя процесса)</i>, <i style="color:rgb(255, 0, 0)">PID(Идентификатор процесса)</i>, <i style="color:rgb(255, 0, 0)">CPU%(Нагруженность процессора)</i>, <i style="color:rgb(255, 0, 0)">MEM%(Нагруженность оперативной памяти)</i>.</i></b></td>
+    </tr>
+    <tr>
+      <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:#1100ff">Описание запущенных процессов:
+      <br/>
+      <br/><i style="color:rgb(162, 0, 255)">
+        ${color white} ${top name 1} ${top pid 1} ${top cpu 1} ${top mem 1}<br/>
+        ${color white} ${top name 2} ${top pid 2} ${top cpu 2} ${top mem 2}<br/>
+        ${color white} ${top name 3} ${top pid 3} ${top cpu 3} ${top mem 3}<br/>
+        ${color white} ${top name 4} ${top pid 4} ${top cpu 4} ${top mem 4}</i></th>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># /etc/conky/conky.conf</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Место расположения конфигурационного файла <i style="color:rgb(255, 0, 0)">conky.conf</i>.</i></b></td>
+    </tr>
+  </tbody>
+</table>
+<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">Теперь нужно создать файл, который будет запускать программу <i style="color:rgb(255, 0, 0)">Conky</i> при запуске системы.</p></i></h3>
+<table>
+  <tbody>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># conky.desktop</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Название файла, которое нужно будет создать для автозапуска.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># /etc/xdg/autostart/conky.desktop</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Место расположения файла <i style="color:rgb(255, 0, 0)">conky.desktop</i> для автозапуска приложения <i style="color:rgb(255, 0, 0)">Conky</i>.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># nano /etc/xdg/autostart/conky.desktop</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Команда для создания и одновременного редактирования файла <i style="color:rgb(255, 0, 0)">conky.desktop</i>.</i></b></td>
+    </tr>
+    <tr>
+      <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:#1100ff">В файле <i style="color:rgb(255, 0, 0)">conky.desktop</i> прописываем следующую конфигурацию:
+      <br/>
+      <br/><i style="color:rgb(162, 0, 255)">
+        [Desktop Entry]<br/>
+        Type=Application<br/>
+        Exec=conky<br/>
+        Hidden=false<br/>
+        X-MATE-Autostart-enabled=true<br/>
+        Name[ru_RU]=Conky<br/>
+        Name=Conky<br/>
+        Comment[ru_RU]=<br/>
+        Comment=<br/>
+        X-MATE-Autostart-Delay=30<br/></i></th>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>Ctrl + O</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Сохраняем изменения в файле нажав на <i style="color:rgb(255, 0, 0)">Enter</i>.</i></b></td>
+     </tr>
+     <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>Ctrl + X</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Выходим из текстового редактора <i style="color:rgb(255, 0, 0)">nano</i> нажав на <i style="color:rgb(255, 0, 0)">Enter</i>.</i></b></td>
+     </tr>
+  </tbody>
+</table>
+<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left"><i style="color:#1100ff">Вопрос:</i> Как проверить, что сонфигурация файла <i style="color:rgb(255, 0, 0)">conky.conf</i> написана без ошибок?</p></i></h3>
+<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left"><i style="color:rgb(162, 0, 255)">Ответ:</i> В терминале выполните команду: <i style="color:rgb(255, 0, 0)">conky</i>. Если виджет открылся, то все действия выполены успешно! Если же после ввода команды появилась ошибка, то проверьте синтаксис в конфигурационном файле.</p></i></h3>
+<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left"><i style="color:#1100ff">Вопрос:</i> Как проверить автозагрузку виджета <i style="color:rgb(255, 0, 0)">Conky</i> при запуске системы?</p></i></h3>
+<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left"><i style="color:rgb(162, 0, 255)">Ответ:</i> В терминале выполните команду: <i style="color:rgb(255, 0, 0)">reboot</i>. После того, как вы залогинитесь, через <i style="color:rgb(255, 0, 0)">30</i> секунд должен появиться виджет.</p></i></h3>
+<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">На этом инструкция завершена! Спасибо за внимание!)</p></i></h3>
+<style>
+.btn:link,
+.btn:visited {
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 15px 40px;
+    display: inline-block;
+    border-radius: 100px;
+    transition: all .2s;
+    position: absolute;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-white {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.btn::after {
+    content: "";
+    display: inline-block;
+    height: 100%;
+    width: 100%;
+    border-radius: 100px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    transition: all .4s;
+}
+
+.btn-white::after {
+    background-color: #ffb7b7;
+}
+
+.btn:hover::after {
+    transform: scaleX(1.4) scaleY(1.6);
+    opacity: 0;
+}
+
+.btn-animated {
+    animation: moveInBottom 5s ease-out;
+    animation-fill-mode: backwards;
+}
+
+@keyframes moveInBottom {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
+</style>
+
+<div class="text-box">
+  <a href="https://dimoroz772.github.io/Linux_RedOS/"class="btn btn-white btn-animate">Back</a>
+</div>
