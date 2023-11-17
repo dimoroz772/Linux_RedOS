@@ -1,0 +1,159 @@
+<head>
+  <title>Creating VLAN Interfaces</title>
+  <link rel="shortcut icon" href="./logo.png" type="image/png">
+</head>
+ <head>
+  <meta charset="utf-8">
+ </head>
+<style>
+body{
+    background-image: url('fon_redos2.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    color: #333;
+}
+a {
+    text-decoration: none;
+}
+p {
+  text-indent: 1.5em;
+  text-align: justify;
+}
+</style>
+<style> 
+  table{
+  border: 1px black solid;
+  }
+  th, td {
+    border: 1px solid grey; /*  бахнуть на rgba(255,255,0,0); */
+  }
+</style>
+  
+<br/>
+<p align="center">
+<Center>
+<img src="./logo.png" width="400" height="150"/>
+</Center>
+</p><br/>
+ <br/>
+ <br/>
+<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">Всем привет! В данном посте рассматривается создание/настройка <i style="color:rgb(255, 0, 0)">VLAN-ов</i> на OC <i style="color:rgb(255, 0, 0)">Linux RedOS 7.3.1</i>.</p></i></h3>
+<h2><i style="color:rgb(255, 0, 0)"><p align="Center">Все описанные ниже действия в командной строке выполнялись под пользователем root.</p></i></h2>
+<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Center">Изначально смотрим как называется сетевой интерфейс.</p></i></h3>
+<table>
+  <tbody>
+   <tr>
+    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># ip a</i></b></td>
+    <td align="Left" style="color:#1100ff" width="600px"><b><i>Просмотр всех <i style="color:rgb(255, 0, 0)">IP</i>-адресов, связанных с сетевыми интерфейсами.</i></b></td>
+   </tr>
+  </tbody>
+</table>
+<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Center">В моём случае будет использоваться сетевой интерфейс <i style="color:rgb(255, 0, 0)">enp1s0</i>.</p></i></h3>
+<table>
+  <tbody>
+   <tr>
+    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># nmcli con add type vlan con-name enp1s0.1 ifname VLAN1 id 1 dev enp1s0 ip4 10.10.10.10/24</i></b></td>
+    <td align="Left" style="color:#1100ff" width="600px"><b><i>Данной командой создается <i style="color:rgb(255, 0, 0)">VLAN #1</i>, с <i style="color:rgb(255, 0, 0)">IP</i>-адресом <i style="color:rgb(255, 0, 0)">10.10.10.10</i> с <i style="color:rgb(255, 0, 0)">24</i> маской.</i></b></td>
+   </tr>
+   <tr>
+    <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:#1100ff">Если <i style="color:rgb(255, 0, 0)">VLAN #1</i> будет использоваться как основной сетевой интерфейс, то нужно отключить проводное соединение, дополнить <i style="color:rgb(255, 0, 0)">VLAN</i>-интерфейс и перезагрузить его:
+    <br/>
+    <br/><i style="color:rgb(162, 0, 255)">
+      1.В консоли вводим команду <i style="color:rgb(255, 0, 0)">mntui</i><br/>
+      2.Изменить подключение<br/>
+      3.Во вкладке <i style="color:rgb(255, 0, 0)">VLAN</i> выбираем <i style="color:rgb(255, 0, 0)">enp1s0.1</i><br/>
+      4.Далее заполняем строки: <i style="color:rgb(255, 0, 0)">Шлюз</i>, <i style="color:rgb(255, 0, 0)">DNS-cерверы</i>, <i style="color:rgb(255, 0, 0)">Домены по необходимости</i><br/>
+      5.ОК<br/>
+      6.Назад<br/>
+      7.Активировать подключение<br/>
+      8.Проводное соединение > Отключить<br/>
+      9.<i style="color:rgb(255, 0, 0)">VLAN (VLAN1)</i> > Отключить > Включить<br/>
+      10.Назад<br/>
+      11.Выйти > Ok</i></th>
+    </tr>
+  </tbody>
+</table>
+<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Center">Также нужно отключить автоматическое подключение проводного соединения.</p></i></h3>
+<table>
+  <tbody>
+   <tr>
+    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># nmcli device status</i></b></td>
+    <td align="Left" style="color:#1100ff" width="600px"><b><i>Проверка активности всех сетевых интерфейсов.</i></b></td>
+   </tr>
+  </tbody>
+</table>
+<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">На этом инструкция завершена! Спасибо за внимание!)</p></i></h3>
+<style>
+.btn:link,
+.btn:visited {
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 15px 40px;
+    display: inline-block;
+    border-radius: 100px;
+    transition: all .2s;
+    position: absolute;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-white {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.btn::after {
+    content: "";
+    display: inline-block;
+    height: 100%;
+    width: 100%;
+    border-radius: 100px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    transition: all .4s;
+}
+
+.btn-white::after {
+    background-color: #ffb7b7;
+}
+
+.btn:hover::after {
+    transform: scaleX(1.4) scaleY(1.6);
+    opacity: 0;
+}
+
+.btn-animated {
+    animation: moveInBottom 5s ease-out;
+    animation-fill-mode: backwards;
+}
+
+@keyframes moveInBottom {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
+</style>
+
+<div class="text-box">
+  <a href="https://dimoroz772.github.io/Linux_RedOS/"class="btn btn-white btn-animate">Back</a>
+</div>
