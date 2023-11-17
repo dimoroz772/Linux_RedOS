@@ -1,0 +1,351 @@
+<head>
+  <title>PXE-Server</title>
+  <link rel="shortcut icon" href="./logo.png" type="image/png">
+</head>
+ <head>
+  <meta charset="utf-8">
+ </head>
+<style>
+body{
+    background-image: url('fon_redos2.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    color: #333;
+}
+a {
+    text-decoration: none;
+}
+p {
+  text-indent: 1.5em;
+  text-align: justify;
+}
+</style>
+<style> 
+  table{
+  border: 1px black solid;
+  }
+  th, td {
+    border: 1px solid grey; /*  бахнуть на rgba(255,255,0,0); */
+  }
+</style>
+  
+<br/>
+<p align="center">
+<Center>
+<img src="./logo.png" width="400" height="150"/>
+</Center>
+</p><br/>
+ <br/>
+ <br/>
+<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">Всем привет! В данном посте рассматривается установка/настройка <i style="color:rgb(255, 0, 0)">PXE-Server-а</i> на OC <i style="color:rgb(255, 0, 0)">Linux RedOS 7.3.1 Workstation</i>.</p></i></h3>
+<h2><i style="color:rgb(255, 0, 0)"><p align="Center">Все описанные ниже действия в командной строке выполнялись под пользователем root.</p></i></h2>
+<h2><i style="color:rgb(255, 0, 0)"><p align="Center">!!!ВНИМАНИЕ!!! В данном примере создается изолированный сегмент сети, т.е. не нужно подключать к общей сети организации, т.к. может возникнуть конфликт DHCP-адресов.</p></i></h2>
+<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">При создании виртуаки рекомендуется выделить:</p></i></h3>
+<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left"><i style="color:rgb(255, 0, 0)">Sockets: 2</i></p></i></h3>
+<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left"><i style="color:rgb(255, 0, 0)">Cores: 2</i></p></i></h3>
+<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left"><i style="color:rgb(255, 0, 0)">Memory(MiB): 8192</i></p></i></h3>
+<table>
+  <tbody>
+   <tr>
+    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># yum update -y && yum upgrade -y && yum install -y dhcp tftp-server syslinux httpd</i></b></td>
+    <td align="Left" style="color:#1100ff" width="600px"><b><i>Установка требуемых пакетов для дальнейшей корректной работы <i style="color:rgb(255, 0, 0)">PXE-Server-a and OC</i>.</i></b></td>
+   </tr>
+  </tbody>
+</table>
+<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">После установки рабочей станции, обязательно нужно прописать статику<i style="color:rgb(255, 0, 0)">(пример)</i>:<br/></p></i></h3>
+<h3><i style="color:rgb(255, 0, 0)"><p align="Left">IP-адрес: 192.168.2.2<br/></p></i></h3>
+<h3><i style="color:rgb(255, 0, 0)"><p align="Left">Mask: 255.255.255.0(24)<br/></p></i></h3>
+<h3><i style="color:rgb(255, 0, 0)"><p align="Left">Gateway: 192.168.2.2<br/></p></i></h3>
+<h3><i style="color:rgb(255, 0, 0)"><p align="Left">DNS-серверы: 192.168.2.2</p></i></h3>
+<table>
+  <tbody>
+   <tr>
+    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># reboot</i></b></td>
+    <td align="Left" style="color:#1100ff" width="600px"><b><i>Команда для перезагрузки <i style="color:rgb(255, 0, 0)">ВМ</i>.</i></b></td>
+   </tr>
+   <tr>
+    <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:#1100ff">Создадим следующие каталоги:
+    <br/>
+    <br/><i style="color:rgb(162, 0, 255)">
+      mkdir /var/lib/tftpboot/pxelinux.cfg<br/>
+      mkdir /var/lib/tftpboot/uefi<br/>
+      mkdir -p /var/lib/tftpboot/images/REDOS</i></th>
+  </tr>
+  <tr>
+    <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:#1100ff">Копируем нужные нам файлы для запуска установки ОС <i style="color:rgb(255, 0, 0)">RedOS 7.3.1</i> по сети в режиме <i style="color:rgb(255, 0, 0)">Legacy</i>:
+    <br/>
+    <br/><i style="color:rgb(162, 0, 255)">
+      cp /usr/share/syslinux/chain.c32 /var/lib/tftpboot/<br/>
+      cp /usr/share/syslinux/mboot.c32 /var/lib/tftpboot/<br/>
+      cp /usr/share/syslinux/memdisk /var/lib/tftpboot/<br/>
+      cp /usr/share/syslinux/menu.c32 /var/lib/tftpboot/<br/>
+      cp /usr/share/syslinux/pxelinux.0 /var/lib/tftpboot/<br/>
+      cp /usr/share/syslinux/ldlinux.c32 /var/lib/tftpboot/<br/>
+      cp /usr/share/syslinux/libutil.c32 /var/lib/tftpboot/</i></th>
+  </tr>
+  <tr>
+    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># chmod 777 /var/lib/tftpboot/pxelinux.0</i></b></td>
+    <td align="Left" style="color:#1100ff" width="600px"><b><i>Выдача полных прав доступа для владельца файла, участников группы и всех остальных.</i></b></td>
+  </tr>
+  <tr>
+    <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:#1100ff">Выполняем последовательность команд для запуска установки ОС <i style="color:rgb(255, 0, 0)">RedOS 7.3.1</i> по сети в режиме <i style="color:rgb(255, 0, 0)">UEFI</i>:
+    <br/>
+    <br/><i style="color:rgb(162, 0, 255)">
+      dnf download shim-x64 grub2-efi-x64 --downloaddir=/root/<br/>
+      cd /root/<br/>
+      rpm2cpio shim-x64-*.rpm | cpio -dimv<br/>
+      rpm2cpio grub2-efi-x64-*.rpm | cpio -dimv<br/>
+      cp ./boot/efi/EFI/BOOT/BOOTX64.EFI /var/lib/tftpboot/uefi<br/>
+      cp ./boot/efi/EFI/redos/grubx64.efi /var/lib/tftpboot/uefi<br/>
+      chmod 777 /var/lib/tftpboot/uefi/*.*</i></th>
+  </tr>
+  <tr>
+    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># cp -vR "/run/media/user/redos-MUROM-7.3.1 x86_64/." /var/lib/tftpboot/images/REDOS</i></b></td>
+    <td align="Left" style="color:#1100ff" width="600px"><b><i>Команда для копирования всех файлов из <i style="color:rgb(255, 0, 0)">iso</i>-образа <i style="color:rgb(255, 0, 0)">RedOS 7.3.1</i> в каталог <i style="color:rgb(255, 0, 0)">/var/lib/tftpboot/images/REDOS</i>.</i></b></td>
+  </tr>
+  <tr>
+    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># mount -t iso9660 -o loop redos-MUROM-7.2-x86_64-DVD1.iso /mnt/</i></b></td>
+    <td align="Left" style="color:#1100ff" width="600px"><b><i>Монтирование образа.</i></b></td>
+  </tr>
+  <tr>
+    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># cp -vR /mnt/* /var/lib/tftpboot/images/REDOS/</i></b></td>
+    <td align="Left" style="color:#1100ff" width="600px"><b><i>Копирование файлов.</i></b></td>
+  </tr>
+  <tr>
+    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># umount /mnt/</i></b></td>
+    <td align="Left" style="color:#1100ff" width="600px"><b><i>Размонтировать образ.</i></b></td>
+  </tr>
+  <tr>
+    <th style="color:#ff0000" colspan="2" align="Center" width="1000px"><i style="color:#1100ff">Настройка <i style="color:rgb(255, 0, 0)">DHCP-Server-a</i>.</i></th>
+  </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># nano /etc/dhcp/dhcpd.conf</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Переходим в редактирование конфигурационного файла <i style="color:rgb(255, 0, 0)">dhcpd.conf</i>.</i></b></td>
+    </tr>
+    <tr>
+      <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:#1100ff">Далее прописываем следующий конфиг:
+      <br/>
+      <br/><i style="color:rgb(162, 0, 255)">
+        non-authoritative;<br/>
+        allow bootp;<br/>
+        option space pxelinux;<br/>
+        option pxelinux.magic code 208 = string;<br/>
+        option pxelinux.configfile code 209 = text;<br/>
+        option pxelinux.pathprefix code 210 = text;<br/>
+        option pxelinux.reboottime code 211 = unsigned integer 32;<br/>
+        option architecture-type code 93 = unsigned integer 16;<br/>
+        <br/>
+        subnet 192.168.2.0 netmask 255.255.255.0 {<br/>
+                option routers 192.168.2.2;<br/>
+                range 192.168.2.70 192.168.2.80;<br/>
+                <br/>
+                class "pxeclients" {<br/>
+                  match if substring (option vendor-class-identifier, 0, 9) = "PXEClient";<br/>
+                  next-server 192.168.2.2;<br/>
+                  if option architecture-type = 00:07 {<br/>
+                     filename "uefi/grubx64.efi";<br/>
+                     } <br/>
+                  else {<br/>
+                       filename "pxelinux.0";<br/>
+                  }<br/>
+           }<br/>
+        }</i></th>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># systemctl enable dhcpd</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Добавление службы <i style="color:rgb(255, 0, 0)">dhcpd</i> в автозапуск.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># systemctl start dhcpd</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Запуск службы <i style="color:rgb(255, 0, 0)">dhcpd</i>.</i></b></td>
+    </tr>
+    <tr>
+      <th style="color:#ff0000" colspan="2" align="Center" width="1000px"><i style="color:#1100ff">Создание загрузочного меню для сетевой установки ОС <i style="color:rgb(255, 0, 0)">RedOS 7.3.1</i> в режиме <i style="color:rgb(255, 0, 0)">Legacy</i>.</i></th>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># nano /var/lib/tftpboot/pxelinux.cfg/default</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Редактирование конфигурационного файла <i style="color:rgb(255, 0, 0)">default</i>.</i></b></td>
+    </tr>
+    <tr>
+      <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:#1100ff">Далее прописываем следующий конфиг<i style="color:rgb(255, 0, 0)">(адрес 192.168.2.2 меняем на тот, с которого загружается образ)</i>:
+      <br/>
+      <br/><i style="color:rgb(162, 0, 255)">
+        default menu.c32<br/>
+        PROMPT 0<br/>
+        TIMEOUT 150<br/>
+        MENU TITLE PXE Menu<br/>
+        LABEL REDOS 7.3<br/>
+        MENU LABEL REDOS 7.3<br/>
+        KERNEL images/REDOS/images/pxeboot/vmlinuz<br/>
+        APPEND initrd=images/REDOS/images/pxeboot/initrd.img ramdisk_size=128000 ip=dhcp inst.repo=http://192.168.2.2/images/REDOS/</i></th>
+    </tr>
+    <tr>
+      <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:#1100ff">Далее прописываем следующий конфиг<i style="color:rgb(255, 0, 0)">(адрес 192.168.2.2 меняем на тот, с которого загружается образ)</i>:
+      <br/>
+      <br/><i style="color:rgb(162, 0, 255)">
+        default menu.c32<br/>
+        PROMPT 0<br/>
+        TIMEOUT 150<br/>
+        MENU TITLE PXE Menu<br/>
+        LABEL REDOS 7.3<br/>
+        MENU LABEL REDOS 7.3<br/>
+        KERNEL images/REDOS/images/pxeboot/vmlinuz<br/>
+        APPEND initrd=images/REDOS/images/pxeboot/initrd.img ramdisk_size=128000 ip=dhcp inst.repo=http://192.168.2.2/images/REDOS/</i></th>
+    </tr>
+    <tr>
+      <th style="color:#ff0000" colspan="2" align="Center" width="1000px"><i style="color:#1100ff">Создание загрузочного меню для сетевой установки ОС <i style="color:rgb(255, 0, 0)">RedOS 7.3.1</i> в режиме <i style="color:rgb(255, 0, 0)">UEFI</i>.</i></th>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># nano /var/lib/tftpboot/uefi/grub.cfg</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Редактирование конфигурационного файла <i style="color:rgb(255, 0, 0)">grub.cfg</i>.</i></b></td>
+    </tr>
+    <tr>
+      <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:#1100ff">Далее прописываем следующий конфиг<i style="color:rgb(255, 0, 0)">(адрес 192.168.2.2 меняем на тот, с которого загружается образ)</i>:
+      <br/>
+      <br/><i style="color:rgb(162, 0, 255)">
+        function load_video {<br/>
+          insmod efi_gop<br/>
+          insmod efi_uga<br/>
+          insmod video_bochs<br/>
+          insmod video_cirrus<br/>
+          insmod all_video<br/>
+  }<br/>
+  <br/>
+  load_video<br/>
+  set gfxpayload=keep<br/>
+  insmod gzio<br/>
+  <br/>
+  menuentry 'REDOS 7.3' {<br/>
+          linux images/REDOS/images/pxeboot/vmlinuz ip=dhcp inst.repo=http://192.168.2.2/images/REDOS/<br/>
+          initrd images/REDOS/images/pxeboot/initrd.img<br/>
+  }</i></th>
+    </tr>
+    <tr>
+      <th style="color:#ff0000" colspan="2" align="Center" width="1000px"><i style="color:#1100ff">Конфигурирование <i style="color:rgb(255, 0, 0)">Web-Server-a HTTPD</i>.</i></th>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># nano /etc/httpd/conf.d/pxeboot.conf</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Создание и редактирование конфигурационного файла <i style="color:rgb(255, 0, 0)">pxeboot.conf</i>.</i></b></td>
+    </tr>
+    <tr>
+      <th style="color:#ff0000" colspan="2" align="Center" width="1000px"><i style="color:#1100ff">Далее прописываем следующий конфиг:</i></th>
+    </tr>
+  </tbody>
+</table>
+<br/>
+<Center>
+  <img src="./Conf_HTTPD.png" width="400" height="150"/>
+</Center>
+<br/>
+<table>
+  <tbody>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># systemctl enable httpd</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Добавление службы <i style="color:rgb(255, 0, 0)">httpd</i> в автозапуск.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># systemctl start httpd</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Запуск службы <i style="color:rgb(255, 0, 0)">httpd</i>.</i></b></td>
+    </tr>
+    <tr>
+      <th style="color:#ff0000" colspan="2" align="Center" width="1000px"><i style="color:#1100ff">Настройка и запуск службы <i style="color:rgb(255, 0, 0)">TFTP</i>.</i></th>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># nano /usr/lib/systemd/system/tftp.service</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Редактирование конфигурационного файла <i style="color:rgb(255, 0, 0)">tftp.service</i>.</i></b></td>
+    </tr>
+    <tr>
+      <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:#1100ff">В секцию <i style="color:rgb(255, 0, 0)">[Install]</i>, перед строкой <i style="color:rgb(255, 0, 0)">Also=tftp.socket</i> нужно добавить строку <i style="color:rgb(255, 0, 0)">WantedBy=multi-user.target</i>.</i></th>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># systemctl enable tftp</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Добавление службы <i style="color:rgb(255, 0, 0)">tftp</i> в автозапуск.</i></b></td>
+    </tr>
+    <tr>
+      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># systemctl start tftp</i></b></td>
+      <td align="Left" style="color:#1100ff" width="600px"><b><i>Запуск службы <i style="color:rgb(255, 0, 0)">tftp</i>.</i></b></td>
+    </tr>
+    <tr>
+      <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:#1100ff">Если <i style="color:rgb(255, 0, 0)">selinux</i> находится в статусе <i style="color:rgb(255, 0, 0)">enforcing</i>, то создайте модуль политики безопасности <i style="color:rgb(255, 0, 0)">selinux</i>, для разрешения доступа с клиентов к <i style="color:rgb(255, 0, 0)">WEB</i>-серверу, который участвует в установке <i style="color:rgb(255, 0, 0)">RedOS</i> по сети.
+      <br/>
+      <br/><i style="color:rgb(162, 0, 255)">
+       # ausearch -c 'httpd' --raw | audit2allow -M my-httpd<br/>
+       # semodule -i my-httpd.pp</i></th>
+    </tr>
+  </tbody>
+</table>
+<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">На этом инструкция завершена! Спасибо за внимание!)</p></i></h3>
+<style>
+.btn:link,
+.btn:visited {
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 15px 40px;
+    display: inline-block;
+    border-radius: 100px;
+    transition: all .2s;
+    position: absolute;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-white {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.btn::after {
+    content: "";
+    display: inline-block;
+    height: 100%;
+    width: 100%;
+    border-radius: 100px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    transition: all .4s;
+}
+
+.btn-white::after {
+    background-color: #ffb7b7;
+}
+
+.btn:hover::after {
+    transform: scaleX(1.4) scaleY(1.6);
+    opacity: 0;
+}
+
+.btn-animated {
+    animation: moveInBottom 5s ease-out;
+    animation-fill-mode: backwards;
+}
+
+@keyframes moveInBottom {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
+</style>
+
+<div class="text-box">
+  <a href="https://dimoroz772.github.io/Linux_RedOS/"class="btn btn-white btn-animate">Back</a>
+</div>
