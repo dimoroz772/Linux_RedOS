@@ -13,3 +13,5 @@
 <i> <a href="https://github.com/dimoroz772/Linux_RedOS/blob/Website/PXE-Server"><b>PXE-Server</b></a><br/><i/>
  <br/>
 <i> <a href="https://github.com/dimoroz772/Linux_RedOS/blob/Website/Creating_VLAN_Interfaces"><b>Creating VLAN Interfaces</b></a><br/><i/>
+ <br/>
+<i> <a href="https://github.com/dimoroz772/Linux_RedOS/blob/Website/Install_Zabbix_Server_6.4.9"><b>Creating VLAN Interfaces</b></a><br/><i/>
