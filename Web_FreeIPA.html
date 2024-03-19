@@ -6,248 +6,125 @@
   <meta charset="utf-8">
  </head>
 <style>
+.neonText1 {
+  color: #87CEFA;
+  text-shadow:
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1;
+}
+.neonText2 {
+  color: #00FF00;
+  text-shadow:
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400;
+}
+/* Additional styling */
 body{
-    background-image: url('fon_redos2.jpg');
+    background-color: black;
     background-repeat: no-repeat;
     background-size: cover;
     background-attachment: fixed;
-    max-width: 1000px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
-    color: #333;
+    color: #cfcfcf;
 }
 a {
     text-decoration: none;
 }
 p {
   text-indent: 1.5em;
-  text-align: justify;
+  font-family: monospace;
+  font-weight: 500;
+  white-space: pre;
+  line-height: 2;
+  letter-spacing: 1px;
 }
 </style>
-<style> 
-  table{
-  border: 1px black solid;
-  }
-  th, td {
-    border: 1px solid grey; /*  бахнуть на rgba(255,255,0,0); */
-  }
-</style>
-  
-<br/>
-<p align="center">
-<Center>
-<img src="./logo.png" width="400" height="150"/>
-</Center>
-</p><br/>
- <br/>
- <br/>
-<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">Всем привет! В данном посте рассматривается установка/настройка контроллера домена <i style="color:rgb(255, 0, 0)">FreeIPA</i> на OC <i style="color:rgb(255, 0, 0)">Linux RedOS 7.3.1 Workstation</i>.</p></i></h3>
-<h2><i style="color:rgb(255, 0, 0)"><p align="Center">Все описанные ниже действия в командной строке выполнялись под пользователем root.</p></i></h2>
-<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">При создании виртуаки рекомендуется выделить:</p></i></h3>
-<h3><i style="color:rgb(255, 0, 0)"><p align="Left">Sockets: 2</p></i></h3>
-<h3><i style="color:rgb(255, 0, 0)"><p align="Left">Cores: 2</p></i></h3>
-<h3><i style="color:rgb(255, 0, 0)"><p align="Left">Memory(MiB): 8192</p></i></h3>
-<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">После установки рабочей станции, обязательно нужно прописать статику(пример):</i></h3>
-<h3><i style="color:rgb(255, 0, 0)"><p align="Left">IP-адрес: 192.168.9.139</p></i></h3>
-<h3><i style="color:rgb(255, 0, 0)"><p align="Left">Mask: 255.255.255.0(24)</p></i></h3>
-<h3><i style="color:rgb(255, 0, 0)"><p align="Left">Gateway: 192.168.9.2</p></i></h3>
-<h3><i style="color:rgb(255, 0, 0)"><p align="Left">Серверы DNS: 192.168.9.2</p></i></h3>
-<h3><i style="color:rgb(255, 0, 0)"><p align="Left">Поисковый домен: freeipa.local</p></i></h3>
-<table>
-  <tbody>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># ifdown ens18 && ifup ens18</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Перезапуск сетевого интерфейса.</i></b></td>
-   </tr>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># yum update -y && yum upgrade -y</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Поиск и обновление пакетов.</i></b></td>
-   </tr>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># reboot</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Перезагрузка системы.</i></b></td>
-   </tr>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># yum install -y bind bind-dyndb-ldap ipa-server ipa-server-dns ipa-server-trust-ad</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Установка необходимых пакетов для развертывания <i style="color:rgb(255, 0, 0)">IPA</i>-сервера.</i></b></td>
-   </tr>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># ipa-server-install --mkhomedir</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Запуск конфигурирования <i style="color:rgb(255, 0, 0)">IPA</i>-сервера.</i></b></td>
-   </tr>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>Do you want to configure integrated DNS (BIND)? [no]: yes</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Настройка интрегрированного<i style="color:rgb(255, 0, 0)">(уже созданного) DNS(BIND)</i> сервера.</i></b></td>
-   </tr>
-  </tbody>
-</table>
-<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">Если команда <i style="color:rgb(255, 0, 0)">hostnamectl set-hostname dc1.freeipa.local</i> была выполнена ранее, то в следующем пункте не должно быть никаких проблем.</p></i></h3>
-<table>
-  <tbody>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>Server host name [dc1.freeipa.local]: "Enter"</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Подтверждение имени хоста сервера.</i></b></td>
-   </tr>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>Please confirm the domain name [freeipa.local]: "Enter"</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Подтверждение доменного имени.</i></b></td>
-   </tr>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>Please provide a realm name [FREEIPA.LOCAL]: "Enter"</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Подтверждение названия области.</i></b></td>
-   </tr>
-   <tr>
-    <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:#1100ff">Задаем пароль:
-    <br/>
-    <br/><i style="color:rgb(162, 0, 255)">
-      Directory Manager password: <i style="color:rgb(255, 0, 0)">********</i><br/>
-      Password (confirm): <i style="color:rgb(255, 0, 0)">********</i><br/>
-      IPA admin password: <i style="color:rgb(255, 0, 0)">********</i><br/>
-      Password (confirm): <i style="color:rgb(255, 0, 0)">********</i></i></th>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>Do you want to configure DNS forwarders? [yes]: "Enter"</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Настройка сервера пересылки <i style="color:rgb(255, 0, 0)">DNS</i>.</i></b></td>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>Do you want to configure these servers as DNS forwarders? [yes]: "Enter"</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Настроить эти серверы как серверы пересылки <i style="color:rgb(255, 0, 0)">DNS</i>.</i></b></td>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>Enter an IP address for a DNS forwarder, or press Enter to skip: "Enter"</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Введите <i style="color:rgb(255, 0, 0)">IP</i>-адрес сервера пересылки <i style="color:rgb(255, 0, 0)">DNS</i> или нажмите <i style="color:rgb(255, 0, 0)">Enter</i>, чтобы пропустить.</i></b></td>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>Do you want to search for missing reverse zones? [yes]: "Enter"</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Поиск недостающих обратных зон.</i></b></td>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>Do you want to create reverse zone for IP 192.168.9.139 [yes]: "Enter"</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Создание обратной зоны для <i style="color:rgb(255, 0, 0)">IP 192.168.9.139</i>.</i></b></td>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>Please specify the reverse zone name [9.168.192.in-addr.arpa.]: "Enter"</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Указание имени обратной зоны.</i></b></td>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>Do you want to configure chrony with NTP server or pool address? [no]: yes</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Настройка сервера времени<i style="color:rgb(255, 0, 0)">(выборочно)</i>.</i></b></td>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>Enter NTP source server addresses separated by comma, or press Enter to skip: "Enter"</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Введите адреса исходного <i style="color:rgb(255, 0, 0)">NTP</i>-сервера через запятую или нажмите <i style="color:rgb(255, 0, 0)">Enter</i>, чтобы пропустить.</i></b></td>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>Enter a NTP source pool address, or press Enter to skip: "Enter"</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Введите адрес исходного пула <i style="color:rgb(255, 0, 0)">NTP</i> или нажмите <i style="color:rgb(255, 0, 0)">Enter</i>, чтобы пропустить.</i></b></td>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i>Continue to configure the system with these values? [no]: yes</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Продолжать настраивать систему с этими значениями? <i style="color:rgb(255, 0, 0)">(ДА!)</i>.</i></b></td>
-    </tr>
-  </tbody>
-</table>
-<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">Далее начнется конфигурирование сервера <i style="color:rgb(255, 0, 0)">FreeIPA</i>.</p></i></h3>
-<table>
-  <tbody>
-    <tr>
-      <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:#1100ff">Для проверки работоспособности <i style="color:rgb(255, 0, 0)">IPA</i>-сервера вводим следующие команды:
-      <br/>
-      <br/><i style="color:rgb(162, 0, 255)">
-        kinit admin<br/>
-        Password for admin@FREEIPA.LOCAL: <i style="color:rgb(255, 0, 0)">********</i><br/>
-        <i style="color:rgb(255, 0, 0)">После введения пароля никаких ошибок выводиться не должно</i>.</i></th>
-    </tr>
-    <tr>
-      <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:#1100ff"># ipa user-find admin
-      <br/>
-      <br/><i style="color:rgb(162, 0, 255)">
-        ----------------------------------------<br/>
-        установлено соответствие 1 пользователя<br/>
-        ----------------------------------------<br/>
-        Имя учётной записи пользователя: admin<br/>
-        Фамилия: Administrator<br/>
-        Домашний каталог: /home/admin<br/>
-        Оболочка входа: /bin/bash<br/>
-        Псевдоним учетной записи: admin@FREEIPA.LOCAL, root@FREEIPA.LOCAL<br/>
-        UID: 1534200000<br/>
-        ID группы: 1534200000<br/>
-        Учётная запись отключена: False<br/>
-        ----------------------------------------<br/>
-        Количество возвращённых записей 1<br/>
-        ----------------------------------------</i></th>
-    </tr>
-  </tbody>
-</table>
-<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">Далее открываем браузер, в поисковике вводим <i style="color:rgb(255, 0, 0)">IP</i>-адрес нащего сервера и заходим под учетными данными пользователя <i style="color:rgb(255, 0, 0)">admin</i>.</p></i></h3>
-<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">На этом инструкция завершена! Спасибо за внимание!)</p></i></h3>
-<style>
-.btn:link,
-.btn:visited {
-    text-transform: uppercase;
-    text-decoration: none;
-    padding: 15px 40px;
-    display: inline-block;
-    border-radius: 100px;
-    transition: all .2s;
-    position: absolute;
-}
+<div class="container">
+<p class="neonText1">
+Установка/настройка контроллера домена FreeIPA на OC Linux RedOS 7.3.1 Workstation
+----------------------------------------------------------------------------------------------------------------------------------------------------
+https://redos.red-soft.ru/base/server-configuring/installation-ipa/install-ipa/
+----------------------------------------------------------------------------------------------------------------------------------------------------
+При создании виртуаки рекомендуется выделить: Sockets: 2; Cores: 2; Memory(MiB): 8192.
+------------
+<a class="neonText2">hostnamectl set-hostname dc1.freeipa.local</a>
+------------
+После установки рабочей станции, обязательно нужно прописать статику(пример):
+IP-адрес: 192.168.9.139; Mask: 255.255.255.0(24); Gateway: 192.168.9.2; Серверы DNS: 192.168.9.2; Поисковый домен: freeipa.local.
+------------
+<a class="neonText2">ifdown ens18 && ifup ens18</a> |#|#| Перезапуск сетевого интерфейса.
+------------
+<a class="neonText2">yum update -y && yum upgrade -y</a> |#|#| Поиск и обновление пакетов.
+------------
+<a class="neonText2">reboot</a> |#|#| Перезагрузка системы.
+------------
+<a class="neonText2">yum install -y bind bind-dyndb-ldap ipa-server ipa-server-dns ipa-server-trust-ad</a> |#|#| Установка необходимых пакетов для развертывания IPA-сервера.
+------------
+<a class="neonText2">ipa-server-install --mkhomedir</a> |#|#| Запуск конфигурирования IPA-сервера.
+------------
+Do you want to configure integrated DNS (BIND)? [no]: yes |#|#| Настройка интрегрированного(уже созданного) DNS(BIND) сервера.
+------------
+Если команда "hostnamectl set-hostname dc1.freeipa.local" была выполнена ранее, то в следующем пункте не должно быть никаких проблем.
+------------
+Server host name [dc1.freeipa.local]: "Enter" |#|#| Подтверждение имени хоста сервера.
+Please confirm the domain name [freeipa.local]: "Enter" |#|#| Подтверждение доменного имени.
+Please provide a realm name [FREEIPA.LOCAL]: "Enter" |#|#| Подтверждение названия области.
+------------
+Directory Manager password: ********
+Password (confirm): ********
+IPA admin password: ********
+Password (confirm): ********
+Do you want to configure DNS forwarders? [yes]: "Enter" |#|#| Настройка сервера пересылки DNS.
+Do you want to configure these servers as DNS forwarders? [yes]: "Enter" |#|#| Настроить эти серверы как серверы пересылки DNS.
+Enter an IP address for a DNS forwarder, or press Enter to skip: "Enter" |#|#| Введите IP-адрес сервера пересылки DNS или нажмите Enter, чтобы пропустить.
+Do you want to search for missing reverse zones? [yes]: "Enter" |#|#| Поиск недостающих обратных зон.
+Do you want to create reverse zone for IP 192.168.9.139 [yes]: "Enter" |#|#| Создание обратной зоны для IP 192.168.9.139.
+Please specify the reverse zone name [9.168.192.in-addr.arpa.]: "Enter" |#|#| Указание имени обратной зоны.
+Do you want to configure chrony with NTP server or pool address? [no]: yes |#|#| Настройка сервера времени(выборочно).
+Enter NTP source server addresses separated by comma, or press Enter to skip: "Enter" |#|#| Введите адреса исходного NTP-сервера через запятую или нажмите Enter, чтобы пропустить.
+Enter a NTP source pool address, or press Enter to skip: "Enter" |#|#| Введите адрес исходного пула NTP или нажмите Enter, чтобы пропустить.
+Continue to configure the system with these values? [no]: yes |#|#| Продолжать настраивать систему с этими значениями? (ДА!)
+------------
+Далее начнется конфигурирование сервера FreeIPA.
+------------
+Для проверки работоспособности IPA-сервера вводим следующие команды:
+------------
+<a class="neonText2">kinit admin</a>
 
-.btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-}
+Password for admin@FREEIPA.LOCAL: ********
+После введения пароля никаких ошибок выводиться не должно.
+------------
+<a class="neonText2">ipa user-find admin</a>
 
-.btn:active {
-    transform: translateY(-1px);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-}
-
-.btn-white {
-    background-color: #ffffff;
-    color: #000000;
-}
-
-.btn::after {
-    content: "";
-    display: inline-block;
-    height: 100%;
-    width: 100%;
-    border-radius: 100px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: -1;
-    transition: all .4s;
-}
-
-.btn-white::after {
-    background-color: #ffb7b7;
-}
-
-.btn:hover::after {
-    transform: scaleX(1.4) scaleY(1.6);
-    opacity: 0;
-}
-
-.btn-animated {
-    animation: moveInBottom 5s ease-out;
-    animation-fill-mode: backwards;
-}
-
-@keyframes moveInBottom {
-    0% {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-
-    100% {
-        opacity: 1;
-        transform: translateY(0px);
-    }
-}
-</style>
-
-<div class="text-box">
-  <a href="https://dimoroz772.github.io/Linux_RedOS/"class="btn btn-white btn-animate">Back</a>
+установлено соответствие 1 пользователя
+------------
+Имя учётной записи пользователя: admin
+Фамилия: Administrator
+Домашний каталог: /home/admin
+Оболочка входа: /bin/bash
+Псевдоним учетной записи: admin@FREEIPA.LOCAL, root@FREEIPA.LOCAL
+UID: 1534200000
+ID группы: 1534200000
+Учётная запись отключена: False
+------------
+Количество возвращённых записей 1
+------------
+Далее открываем браузер, в поисковике вводим IP-адрес нащего сервера и заходим под учетными данными пользователя "admin".
+----------------------------------------------------------------------------------------------------------------------------------------------------
+На этом инструкция закончена! Спасибо за внимание)
+</p>
 </div>
