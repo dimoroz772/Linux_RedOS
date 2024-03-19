@@ -6,418 +6,278 @@
   <meta charset="utf-8">
  </head>
 <style>
+.neonText1 {
+  color: #87CEFA;
+  text-shadow:
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1;
+}
+.neonText2 {
+  color: #00FF00;
+  text-shadow:
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400;
+}
+/* Additional styling */
 body{
-    background-image: url('fon_redos2.jpg');
+    background-color: black;
     background-repeat: no-repeat;
     background-size: cover;
     background-attachment: fixed;
-    max-width: 1000px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
-    color: #333;
+    color: #cfcfcf;
 }
 a {
     text-decoration: none;
 }
 p {
   text-indent: 1.5em;
-  text-align: justify;
+  font-family: monospace;
+  font-weight: 500;
+  white-space: pre;
+  line-height: 2;
+  letter-spacing: 1px;
 }
 </style>
-<style> 
-  table{
-  border: 1px black solid;
-  }
-  th, td {
-    border: 1px solid grey; /*  бахнуть на rgba(255,255,0,0); */
-  }
-</style>
-  
-<br/>
-<p align="center">
-<Center>
-<img src="./logo.png" width="400" height="150"/>
-</Center>
-</p><br/>
- <br/>
- <br/>
-<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">Всем привет! В данном посте рассматривается установка/настройка контроллера домена <i style="color:rgb(255, 0, 0)">Samba DC</i> на OC <i style="color:rgb(255, 0, 0)">Linux RedOS 7.3.2 Workstation</i>.</p></i></h3>
-<h2><i style="color:rgb(255, 0, 0)"><p align="Center">Все описанные ниже действия в командной строке выполнялись под пользователем root.</p></i></h2>
-<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">При создании виртуаки рекомендуется выделить:</p></i></h3>
-<h3><i style="color:rgb(255, 0, 0)"><p align="Left">Sockets: 2</p></i></h3>
-<h3><i style="color:rgb(255, 0, 0)"><p align="Left">Cores: 2</p></i></h3>
-<h3><i style="color:rgb(255, 0, 0)"><p align="Left">Memory(MiB): 8192</p></i></h3>
-<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">После установки рабочей станции, обязательно нужно прописать статику(пример):</i></h3>
-<h3><i style="color:rgb(255, 0, 0)"><p align="Left">IP-адрес: 192.168.88.165</p></i></h3>
-<h3><i style="color:rgb(255, 0, 0)"><p align="Left">Mask: 255.255.255.0(24)</p></i></h3>
-<h3><i style="color:rgb(255, 0, 0)"><p align="Left">Gateway: 192.168.88.1</p></i></h3>
-<h3><i style="color:rgb(255, 0, 0)"><p align="Left">Серверы DNS: 77.88.8.88(ya.ru)</p></i></h3>
-<h3><i style="color:rgb(255, 0, 0)"><p align="Left">Поисковый домен: test.local</p></i></h3>
-<table>
-  <tbody>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># ifdown ens18 && ifup ens18</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Перезапуск сетевого интерфейса.</i></b></td>
-   </tr>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># yum update -y && yum upgrade -y</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Поиск и обновление пакетов.</i></b></td>
-   </tr>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># reboot</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Перезагрузка системы.</i></b></td>
-   </tr>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># yum install samba-client*.x86_64 samba-common.noarch samba-common*x86_64 samba-dc*.x86_64 samba-libs*.x86_64 samba-winbind*.x86_64 -y</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Установка необходимых пакетов.</i></b></td>
-   </tr>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># smbd -b | grep HAVE_LIBKADM5SRV_MIT</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Проверка <i style="color:rgb(255, 0, 0)">Samba</i> на наличие <i style="color:rgb(255, 0, 0)">Kerberos Heimdal</i>. Если команда выдаёт <i style="color:rgb(255, 0, 0)">HAVE_LIBKADM5SRV_MIT</i>, тогда нужно установить <i style="color:rgb(255, 0, 0)">Samba</i> с  поддержкой <i style="color:rgb(255, 0, 0)">Kerberos Heimdal</i>.</i></b></td>
-   </tr>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># mv /etc/krb5.conf /etc/krb5.conf.bak</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Переименование дефолтного файла <i style="color:rgb(255, 0, 0)">Kerberos</i>.</i></b></td>
-   </tr>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># mv /etc/samba/smb.conf /etc/samba/smb.conf.bak</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Переименование дефолтного файла <i style="color:rgb(255, 0, 0)">Samba</i>.</i></b></td>
-   </tr>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># smbd -V</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Команда проверки установленной версии <i style="color:rgb(255, 0, 0)">Samba</i>.</i></b></td>
-   </tr>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># nano /etc/selinux/config</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>В файле <i style="color:rgb(255, 0, 0)">config</i> нужно поменять статус <i style="color:rgb(255, 0, 0)">SElinux</i>. Заменить текст <i style="color:rgb(255, 0, 0)">SELINUX=enforcing</i> на <i style="color:rgb(255, 0, 0)">SELINUX=permissive</i>.</i></b></td>
-   </tr>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># setenforce 0</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Эта команда отключает <i style="color:rgb(255, 0, 0)">SELinux</i> на сеанс до перезагрузки системы.</i></b></td>
-   </tr>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># hostnamectl set-hostname dc1.test.local</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Смена имени сервера.</i></b></td>
-   </tr>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># nano /etc/hosts</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>В файле <i style="color:rgb(255, 0, 0)">hosts</i> нужно добавить ниже <i style="color:rgb(255, 0, 0)">IP</i>-адрес сервера, его полное и короткое имя.</i></b></td>
-   </tr>
-  </tbody>
-</table>
-<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">Пример:</p></i></h3>
-<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">192.168.88.165 dc1.test.local dc1</p></i></h3>
-<table>
-  <tbody>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># systemctl restart NetworkManager</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Перезагразка сетевого интерфейса.</i></b></td>
-   </tr>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># cat /etc/resolv.conf</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Проверка файла <i style="color:rgb(255, 0, 0)">resolv.conf</i> в прописанными <i style="color:rgb(255, 0, 0)">DNS</i>-адресами.</i></b></td>
-   </tr>
-   <tr>
-    <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:#1100ff">Вывод должнен быть таким:
-    <br/>
-    <br/><i style="color:rgb(162, 0, 255)">
-      # Generated by NetworkManager<br/>
-      search test.local<br/>
-      nameserver 77.88.8.88</i></th>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># samba-tool domain provision --use-rfc2307 --interactive</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Запуск конфигурирования <i style="color:rgb(255, 0, 0)">Samba</i> в роли контроллера домена в интерактивном режиме.</i></b></td>
-     </tr>
-     <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:rgb(162, 0, 255)">
-      ------------<br/>
-      Realm [TEST.LOCAL]:<br/>
-      Domain [TEST]:<br/>
-      Server Role (dc, member, standalone) [dc]: dc<br/>
-      DNS backend (SAMBA_INTERNAL, BIND9_FLATFILE, BIND9_DLZ, NONE) [SAMBA_INTERNAL]:<br/>
-      DNS forwarder IP address (write 'none' to disable forwarding) [77.88.8.88]: 192.168.88.165<br/>
-      Administrator password:<br/>
-      Retype password:<br/>
-      INFO 2023-02-03 12:55:46,492 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2108: Looking up IPv4 addresses<br/>
-      INFO 2023-02-03 12:55:46,494 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2125: Looking up IPv6 addresses<br/>
-      WARNING 2023-02-03 12:55:46,495 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2132: No IPv6 address will be assigned<br/>
-      INFO 2023-02-03 12:55:46,755 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2274: Setting up share.ldb<br/>
-      INFO 2023-02-03 12:55:46,771 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2278: Setting up secrets.ldb<br/>
-      INFO 2023-02-03 12:55:46,783 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2283: Setting up the registry<br/>
-      INFO 2023-02-03 12:55:46,825 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2286: Setting up the privileges database<br/>
-      INFO 2023-02-03 12:55:46,847 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2289: Setting up idmap db<br/>
-      INFO 2023-02-03 12:55:46,862 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2296: Setting up SAM db<br/>
-      INFO 2023-02-03 12:55:46,867 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #880: Setting up sam.ldb partitions and settings<br/>
-      INFO 2023-02-03 12:55:46,868 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #892: Setting up sam.ldb rootDSE<br/>
-      INFO 2023-02-03 12:55:46,871 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1305: Pre-loading the Samba 4 and AD schema<br/>
-      Unable to determine the DomainSID, can not enforce uniqueness constraint on local domainSIDs<br/>
-      <br/>
-      INFO 2023-02-03 12:55:46,909 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1383: Adding DomainDN: DC=test,DC=local<br/>
-      INFO 2023-02-03 12:55:46,922 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1415: Adding configuration container<br/>
-      INFO 2023-02-03 12:55:46,933 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1430: Setting up sam.ldb schema<br/>
-      INFO 2023-02-03 12:55:49,421 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1448: Setting up sam.ldb configuration data<br/>
-      INFO 2023-02-03 12:55:49,554 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1489: Setting up display specifiers<br/>
-      INFO 2023-02-03 12:55:51,254 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1497: Modifying display specifiers and extended rights<br/>
-      INFO 2023-02-03 12:55:51,287 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1504: Adding users container<br/>
-      INFO 2023-02-03 12:55:51,288 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1510: Modifying users container<br/>
-      INFO 2023-02-03 12:55:51,289 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1513: Adding computers container<br/>
-      INFO 2023-02-03 12:55:51,290 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1519: Modifying computers container<br/>
-      INFO 2023-02-03 12:55:51,291 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1523: Setting up sam.ldb data<br/>
-      INFO 2023-02-03 12:55:51,397 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1553: Setting up well known security principals<br/>
-      INFO 2023-02-03 12:55:51,435 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1567: Setting up sam.ldb users and groups<br/>
-      INFO 2023-02-03 12:55:51,552 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1575: Setting up self join<br/>
-      Repacking database from v1 to v2 format (first record CN=ms-SPP-Installation-Id,CN=Schema,CN=Configuration,DC=test,DC=local)<br/>
-      Repack: re-packed 10000 records so far<br/>
-      Repacking database from v1 to v2 format (first record CN=interSiteTransport-Display,CN=C04,CN=DisplaySpecifiers,CN=Configuration,DC=test,DC=local)<br/>
-      Repacking database from v1 to v2 format (first record CN=ipsecNFA{59319BE2-5EE3-11D2-ACE8-0060B0ECCA17},CN=IP Security,CN=System,DC=test,DC=local)<br/>
-      INFO 2023-02-03 12:55:52,602 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/sambadns.py #1200: Adding DNS accounts<br/>
-      INFO 2023-02-03 12:55:52,619 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/sambadns.py #1234: Creating CN=MicrosoftDNS,CN=System,DC=test,DC=local<br/>
-      INFO 2023-02-03 12:55:52,634 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/sambadns.py #1247: Creating DomainDnsZones and ForestDnsZones partitions<br/>
-      INFO 2023-02-03 12:55:52,677 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/sambadns.py #1252: Populating DomainDnsZones and ForestDnsZones partitions<br/>
-      Repacking database from v1 to v2 format (first record DC=j.root-servers.net,DC=RootDNSServers,CN=MicrosoftDNS,DC=DomainDnsZones,DC=test,DC=local)<br/>
-      Repacking database from v1 to v2 format (first record DC=_kerberos._tcp.Default-First-Site-Name._sites.dc,DC=_msdcs.test.local,CN=MicrosoftDNS,DC=ForestDnsZones,DC=test,DC=local)<br/>
-      INFO 2023-02-03 12:55:52,849 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2012: Setting up sam.ldb rootDSE marking as synchronized<br/>
-      INFO 2023-02-03 12:55:52,852 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2017: Fixing provision GUIDs<br/>
-      INFO 2023-02-03 12:55:53,923 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2348: A Kerberos configuration suitable for Samba AD has been generated at /var/lib/samba/private/krb5.conf<br/>
-      INFO 2023-02-03 12:55:53,923 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2350: Merge the contents of this file with your system krb5.conf or replace it with this one. Do not create a symlink!<br/>
-      INFO 2023-02-03 12:55:53,967 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2082: Setting up fake yp server settings<br/>
-      INFO 2023-02-03 12:55:54,024 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #487: Once the above files are installed, your Samba AD server will be ready to use<br/>
-      INFO 2023-02-03 12:55:54,024 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #492: Server Role:           active directory domain controller<br/>
-      INFO 2023-02-03 12:55:54,024 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #493: Hostname:              dc1<br/>
-      INFO 2023-02-03 12:55:54,024 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #494: NetBIOS Domain:        TEST<br/>
-      INFO 2023-02-03 12:55:54,024 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #495: DNS Domain:            test.local<br/>
-      INFO 2023-02-03 12:55:54,024 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #496: DOMAIN SID:            S-1-5-21-25273870-955602320-113037211<br/></i></th>
-  </tbody>
-</table>
-<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">После окончания конфигурирования контроллера домена, нужно зайти в настройки сетевого интерфейса и в строке <i style="color:rgb(255, 0, 0)">Серверы DNS</i> поменять адрес <i style="color:rgb(255, 0, 0)">77.88.8.88</i> на <i style="color:rgb(255, 0, 0)">192.168.88.165</i>.</p></i></h3>
-<table>
-  <tbody>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># nano /etc/samba/smb.conf</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>В файле <i style="color:rgb(255, 0, 0)">smb.conf</i>, раздел <i style="color:rgb(255, 0, 0)">[global]</i> нужно привести к следующему виду:</i></b></td>
-   </tr>
-   <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:rgb(162, 0, 255)">
-    [global]<br/>
-    log level = 3<br/>
-    dns forwarder = 192.168.88.165<br/>
-    netbios name = DC1<br/>
-    realm= TEST.LOCAL<br/>
-    server role = active directory domain controller<br/>
-    workgroup= TEST<br/>
-    idmap_ldb:use rfc2307 = yes<br/>
-    vfs objects = dfs_samba4 acl_xattr<br/>
-    map acl inherit = yes<br/>
-    store dos attributes = yes<br/>
-    allow dns updates = nonsecure<br/>
-    nsupdate command = /usr/bin/nsupdate -g<br/>
-    dsdb:schema update allowed = true<br/>
-    security = user<br/>
-    map to guest = bad user<br/>
-    wins support = no<br/>
-    dns proxy = no<br/>
-    <br/>
-[sysvol]<br/>
-    path = /var/lib/samba/sysvol<br/>
-    read only = No<br/>
-    <br/>
-[netlogon]<br/>
-path = /var/lib/samba/sysvol/test.local/scripts<br/>
-    read only = No<br/>
-    <br/>
-[public]<br/>
-    path = /samba/public<br/>
-    guest ok = yes<br/>
-    force user = nobody<br/>
-    browsable = yes<br/>
-    writable = yes<br/>
-    <br/>
-[private]<br/>
-path = /samba/private<br/>
-    valid users = @smbgrp<br/>
-    guest ok = no<br/>
-    browsable = yes<br/>
-    writable = yes</i></th>
-  </tbody>
-</table>
-<table>
-  <tbody>
-   <tr>
-    <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># testparm</i></b></td>
-    <td align="Left" style="color:#1100ff" width="600px"><b><i>Команда для проверки работоспособности файла <i style="color:rgb(255, 0, 0)">smb.conf</i> в каталоге <i style="color:rgb(255, 0, 0)">/etc/samba/</i>.</i></b></td>
-   </tr>
-   <tr>
-    <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:#1100ff">При хорошем раскладе вывод должен быть таким:
-    <br/>
-    <br/><i style="color:rgb(162, 0, 255)">
-    Load smb config files fr om /etc/samba/smb.conf<br/>
-    Loaded services file OK.<br/>
-    Weak crypto is allowed<br/>
-    Server role: ROLE_ACTIVE_DIRECTORY_DC</i></th>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># cp /var/lib/samba/private/krb5.conf /etc/</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Копирование сконфигурированного файла <i style="color:rgb(255, 0, 0)">Kerberos</i>.</i></b></td>
-     </tr>
-     <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># nano /etc/krb5.conf</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Файл нужно привести к следующему виду:</i></b></td>
-     </tr>
-     <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:rgb(162, 0, 255)">
-      [libdefaults]<br/>
-      default_realm = TEST.LOCAL<br/>
-      dns_lookup_realm = false<br/>
-      dns_lookup_kdc = true<br/>
-      ticket_lifetime = 24h<br/>
-      forwardable = yes<br/>
-      <br/>
-      [realms]<br/>
-      TEST.LOCAL = {<br/>
-        default_domain = test.local<br/>
-      }<br/>
-      <br/>
-      [domain_realm]<br/>
-        dc1 = TEST.LOCAL</i></th>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># systemctl status samba.service</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Проверка статуса <i style="color:rgb(255, 0, 0)">Samba</i>.</i></b></td>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># systemctl start samba.service</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Запуск службы <i style="color:rgb(255, 0, 0)">Samba</i>.</i></b></td>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># systemctl enable samba.service --now</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Добавление в автозапуск сервиса <i style="color:rgb(255, 0, 0)">Samba</i>.</i></b></td>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># reboot</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Перезапуск системы.</i></b></td>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># ping ya.ru</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Команда проверки <i style="color:rgb(255, 0, 0)">dns</i>.</i></b></td>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># ps ax | egrep "samba|smbd|nmbd|winbindd"</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Команда проверки запущенных процессов.</i></b></td>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># wbinfo --ping-dc</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Команда для проверки подключения службы <i style="color:rgb(255, 0, 0)">Winbind</i> к контроллеру домена.</i></b></td>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># wbinfo -u</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Команда для показа доменных пользователей.</i></b></td>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># wbinfo -g</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Команда для показа доменных групп.</i></b></td>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># yum install -y redadm</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Команда для установки <i style="color:rgb(255, 0, 0)">Web</i>-интерфейса, для управления для управления доменом <i style="color:rgb(255, 0, 0)">Samba</i>.</i></b></td>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># nano /etc/redadm/server.conf</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Команда для настройки конфигурационного файла <i style="color:rgb(255, 0, 0)">Samba</i>-сервера.</i></b></td>
-    </tr>
-    <tr>
-      <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:#1100ff">Пример настройки конфигурационного файла:
-      <br/>
-      <br/><i style="color:rgb(162, 0, 255)">
-        [SETTINGS]<br/>
-        name= test.local |#|#| Имя вашего домена<br/>
-        ldap_url= ldaps://192.168.88.165:636 |#|#| <i style="color:#1100ff"><i style="color:rgb(255, 0, 0)">ldaps</i>-адрес к нужному контроллеру домена, в нашем случае это <i style="color:rgb(255, 0, 0)">Samba DC</i></i>.<br/>
-        cert_path= /etc/pki/ca-trust/source/anchors/ca.pem |#|#| <i style="color:#1100ff">адрес сертификата <i style="color:rgb(255, 0, 0)">TLS(SSL) (создается автоматически при установке, можете указать свой)</i>.</i></i></th>
-    </tr>
-    <tr>
-      <th style="color:#ff0000" colspan="2" align="Left" width="1000px"><i style="color:rgb(255, 0, 0)">nano /etc/redadm/client.conf
-      <br/>
-      <br/><i style="color:#1100ff">
-        [SETTINGS]<br/>
-        IP=192.168.88.165 |#|#| <i style="color:rgb(255, 0, 0)">IP</i>-адрес вашего сервера <i style="color:rgb(255, 0, 0)">RedAdm</i>, к которому будут подключаться клиенты<br/>
-        PORT=8989 |#|#| Порт, к которому будут подключаться клиенты <i style="color:rgb(255, 0, 0)">РЕД АДМ</i></i></th>
-    </tr>  
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># systemctl enable redadm.service redis.service redadm-celery-worker.service redadm-celery-beat.service --now</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Команда для добавления в автозагрузку сервисов ПО <i style="color:rgb(255, 0, 0)">RedAdm</i>.</i></b></td>
-    </tr>
-    <tr>
-      <td align="Left" style="color:rgb(162, 0, 255)" width="400px"><b><i># systemctl restart redadm</i></b></td>
-      <td align="Left" style="color:#1100ff" width="600px"><b><i>Команда для перезагрузки <i style="color:rgb(255, 0, 0)">RedAdm</i>.</i></b></td>
-    </tr>
-  </tbody>
-</table>
-<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">Вход осуществляется с помощью доменной учетной записи <i style="color:rgb(255, 0, 0)">Linux RedOS 7.3.2 Workstation</i>.</p></i></h3>
-<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">Ссылка для входа: <i style="color:rgb(255, 0, 0)">http://ip-address:8989</i>.</p></i></h3>
-<h3><i style="color:rgba(0, 0, 0, 0.644)"><p align="Left">На этом инструкция завершена! Спасибо за внимание!)</p></i></h3>
-<style>
-.btn:link,
-.btn:visited {
-    text-transform: uppercase;
-    text-decoration: none;
-    padding: 15px 40px;
-    display: inline-block;
-    border-radius: 100px;
-    transition: all .2s;
-    position: absolute;
+<div class="container">
+<p class="neonText1">
+Установка/настройка контроллера домена Samba DC на OC Linux RedOS 7.3.2 Workstation
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+https://redos.red-soft.ru/base/server-configuring/domain-config/install-samba-dc/
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+При создании виртуаки рекомендуется выделить: Sockets: 2; Cores: 2; Memory(MiB): 8192.
+------------
+После установки рабочей станции, обязательно нужно прописать статику(пример):
+IP-адрес: 192.168.88.165; Mask: 255.255.255.0(24); Gateway: 192.168.88.1; Серверы DNS: 77.88.8.88(ya.ru); Поисковый домен: test.local
+------------
+<a class="neonText2">ifdown ens18 && ifup ens18</a> |#|#| Перезапуск сетевого интерфейса.
+------------
+<a class="neonText2">yum update -y && yum upgrade -y</a> |#|#| Поиск и обновление пакетов.
+------------
+<a class="neonText2">reboot</a> |#|#| Перезагрузка системы.
+------------
+<a class="neonText2">yum install samba-client*.x86_64 samba-common.noarch samba-common*x86_64 samba-dc*.x86_64 samba-libs*.x86_64 samba-winbind*.x86_64 -y</a> |#|#| Установка необходимых пакетов
+------------
+<a class="neonText2">smbd -b | grep HAVE_LIBKADM5SRV_MIT</a> |#|#| Проверка Samba на наличие Kerberos Heimdal. Если команда выдаёт "HAVE_LIBKADM5SRV_MIT", тогда нужно установить Samba с  поддержкой Kerberos Heimdal.
+------------
+<a class="neonText2">mv /etc/krb5.conf /etc/krb5.conf.bak</a> |#|#| Переименование дефолтного файла Kerberos.
+------------
+<a class="neonText2">mv /etc/samba/smb.conf /etc/samba/smb.conf.bak</a> |#|#| Переименование дефолтного файла Samba.
+------------
+<a class="neonText2">smbd -V</a> |#|#| Команда проверки установленной версии Samba.
+------------
+<a class="neonText2">nano /etc/selinux/config</a> |#|#| В файле config нужно поменять статус SElinux. Заменить текст SELINUX=enforcing на SELINUX=permissive.
+------------
+<a class="neonText2">setenforce 0</a>
+------------
+<a class="neonText2">hostnamectl set-hostname dc1.test.local</a> |#|#| Смена имени сервера.
+------------
+<a class="neonText2">nano /etc/hosts</a> |#|#| В файле hosts нужно добавить ниже IP-адрес сервера, его полное и короткое имя.
+------------
+Пример: 192.168.88.165 dc1.test.local dc1
+------------
+<a class="neonText2">systemctl restart NetworkManager</a> |#|#| Перезагразка сетевого интерфейса.
+------------
+<a class="neonText2">cat /etc/resolv.conf</a> |#|#| Проверка файла resolv.conf в прописанными dns-адресами.
+------------
+Вывод должнен быть таким:
+
+# Generated by NetworkManager
+search test.local
+nameserver 77.88.8.88
+------------
+<a class="neonText2">samba-tool domain provision --use-rfc2307 --interactive</a> |#|#| Запуск конфигурирования Samba в роли контроллера домена в интерактивном режиме.
+------------
+
+Realm [TEST.LOCAL]:
+Domain [TEST]:
+Server Role (dc, member, standalone) [dc]: dc
+DNS backend (SAMBA_INTERNAL, BIND9_FLATFILE, BIND9_DLZ, NONE) [SAMBA_INTERNAL]:
+DNS forwarder IP address (write 'none' to disable forwarding) [77.88.8.88]: 192.168.88.165
+Administrator password:
+Retype password:
+INFO 2023-02-03 12:55:46,492 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2108: Looking up IPv4 addresses
+INFO 2023-02-03 12:55:46,494 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2125: Looking up IPv6 addresses
+WARNING 2023-02-03 12:55:46,495 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2132: No IPv6 address will be assigned
+INFO 2023-02-03 12:55:46,755 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2274: Setting up share.ldb
+INFO 2023-02-03 12:55:46,771 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2278: Setting up secrets.ldb
+INFO 2023-02-03 12:55:46,783 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2283: Setting up the registry
+INFO 2023-02-03 12:55:46,825 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2286: Setting up the privileges database
+INFO 2023-02-03 12:55:46,847 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2289: Setting up idmap db
+INFO 2023-02-03 12:55:46,862 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2296: Setting up SAM db
+INFO 2023-02-03 12:55:46,867 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #880: Setting up sam.ldb partitions and settings
+INFO 2023-02-03 12:55:46,868 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #892: Setting up sam.ldb rootDSE
+INFO 2023-02-03 12:55:46,871 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1305: Pre-loading the Samba 4 and AD schema
+Unable to determine the DomainSID, can not enforce uniqueness constraint on local domainSIDs
+
+INFO 2023-02-03 12:55:46,909 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1383: Adding DomainDN: DC=test,DC=local
+INFO 2023-02-03 12:55:46,922 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1415: Adding configuration container
+INFO 2023-02-03 12:55:46,933 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1430: Setting up sam.ldb schema
+INFO 2023-02-03 12:55:49,421 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1448: Setting up sam.ldb configuration data
+INFO 2023-02-03 12:55:49,554 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1489: Setting up display specifiers
+INFO 2023-02-03 12:55:51,254 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1497: Modifying display specifiers and extended rights
+INFO 2023-02-03 12:55:51,287 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1504: Adding users container
+INFO 2023-02-03 12:55:51,288 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1510: Modifying users container
+INFO 2023-02-03 12:55:51,289 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1513: Adding computers container
+INFO 2023-02-03 12:55:51,290 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1519: Modifying computers container
+INFO 2023-02-03 12:55:51,291 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1523: Setting up sam.ldb data
+INFO 2023-02-03 12:55:51,397 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1553: Setting up well known security principals
+INFO 2023-02-03 12:55:51,435 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1567: Setting up sam.ldb users and groups
+INFO 2023-02-03 12:55:51,552 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #1575: Setting up self join
+Repacking database from v1 to v2 format (first record CN=ms-SPP-Installation-Id,CN=Schema,CN=Configuration,DC=test,DC=local)
+Repack: re-packed 10000 records so far
+Repacking database from v1 to v2 format (first record CN=interSiteTransport-Display,CN=C04,CN=DisplaySpecifiers,CN=Configuration,DC=test,DC=local)
+Repacking database from v1 to v2 format (first record CN=ipsecNFA{59319BE2-5EE3-11D2-ACE8-0060B0ECCA17},CN=IP Security,CN=System,DC=test,DC=local)
+INFO 2023-02-03 12:55:52,602 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/sambadns.py #1200: Adding DNS accounts
+INFO 2023-02-03 12:55:52,619 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/sambadns.py #1234: Creating CN=MicrosoftDNS,CN=System,DC=test,DC=local
+INFO 2023-02-03 12:55:52,634 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/sambadns.py #1247: Creating DomainDnsZones and ForestDnsZones partitions
+INFO 2023-02-03 12:55:52,677 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/sambadns.py #1252: Populating DomainDnsZones and ForestDnsZones partitions
+Repacking database from v1 to v2 format (first record DC=j.root-servers.net,DC=RootDNSServers,CN=MicrosoftDNS,DC=DomainDnsZones,DC=test,DC=local)
+Repacking database from v1 to v2 format (first record DC=_kerberos._tcp.Default-First-Site-Name._sites.dc,DC=_msdcs.test.local,CN=MicrosoftDNS,DC=ForestDnsZones,DC=test,DC=local)
+INFO 2023-02-03 12:55:52,849 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2012: Setting up sam.ldb rootDSE marking as synchronized
+INFO 2023-02-03 12:55:52,852 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2017: Fixing provision GUIDs
+INFO 2023-02-03 12:55:53,923 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2348: A Kerberos configuration suitable for Samba AD has been generated at /var/lib/samba/private/krb5.conf
+INFO 2023-02-03 12:55:53,923 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2350: Merge the contents of this file with your system krb5.conf or replace it with this one. Do not create a symlink!
+INFO 2023-02-03 12:55:53,967 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #2082: Setting up fake yp server settings
+INFO 2023-02-03 12:55:54,024 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #487: Once the above files are installed, your Samba AD server will be ready to use
+INFO 2023-02-03 12:55:54,024 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #492: Server Role:           active directory domain controller
+INFO 2023-02-03 12:55:54,024 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #493: Hostname:              dc1
+INFO 2023-02-03 12:55:54,024 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #494: NetBIOS Domain:        TEST
+INFO 2023-02-03 12:55:54,024 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #495: DNS Domain:            test.local
+INFO 2023-02-03 12:55:54,024 pid:4043 /usr/lib64/python3.8/site-packages/samba/provision/__init__.py #496: DOMAIN SID:            S-1-5-21-25273870-955602320-113037211
+------------
+После окончания конфигурирования контроллера домена, нужно зайти в настройки сетевого интерфейса и встроке "Серверы DNS" поменять адрес 77.88.8.88 на 192.168.88.165.
+------------
+<a class="neonText2">nano /etc/samba/smb.conf</a> |#|#| В файле smb.conf, раздел [global] нужно привести к следующему виду:
+<a class="neonText2">
+[global]
+        log level = 3
+        dns forwarder = 192.168.88.165
+        netbios name = DC1
+        realm= TEST.LOCAL
+        server role = active directory domain controller
+        workgroup= TEST
+        idmap_ldb:use rfc2307 = yes
+        vfs objects = dfs_samba4 acl_xattr
+        map acl inherit = yes
+        store dos attributes = yes
+        allow dns updates = nonsecure
+        nsupdate command = /usr/bin/nsupdate -g
+        dsdb:schema update allowed = true
+        security = user
+        map to guest = bad user
+        wins support = no
+        dns proxy = no
+
+[sysvol]
+        path = /var/lib/samba/sysvol
+        read only = No
+
+[netlogon]
+	path = /var/lib/samba/sysvol/test.local/scripts
+        read only = No
+
+[public]
+        path = /samba/public
+        guest ok = yes
+        force user = nobody
+        browsable = yes
+        writable = yes
+
+[private]
+	path = /samba/private
+        valid users = @smbgrp
+        guest ok = no
+        browsable = yes
+        writable = yes</a>
+------------
+<a class="neonText2">testparm</a> |#|#| Команда для проверки работоспособности файла "smb.conf" в каталоге "/etc/samba/"
+------------
+При хорошем раскладе вывод должен быть таким: 
+
+Load smb config files fr om /etc/samba/smb.conf
+Loaded services file OK.
+Weak crypto is allowed
+Server role: ROLE_ACTIVE_DIRECTORY_DC
+------------
+<a class="neonText2">cp /var/lib/samba/private/krb5.conf /etc/</a> |#|#| Копирование сконфигурированного файла Kerberos.
+------------
+<a class="neonText2">nano /etc/krb5.conf</a> |#|#| Файл нужно привести к следующему виду:
+<a class="neonText2">
+[libdefaults]
+default_realm = TEST.LOCAL
+dns_lookup_realm = false
+dns_lookup_kdc = true
+ticket_lifetime = 24h
+forwardable = yes
+
+[realms]
+TEST.LOCAL = {
+  default_domain = test.local
 }
 
-.btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-}
-
-.btn:active {
-    transform: translateY(-1px);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-}
-
-.btn-white {
-    background-color: #ffffff;
-    color: #000000;
-}
-
-.btn::after {
-    content: "";
-    display: inline-block;
-    height: 100%;
-    width: 100%;
-    border-radius: 100px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: -1;
-    transition: all .4s;
-}
-
-.btn-white::after {
-    background-color: #ffb7b7;
-}
-
-.btn:hover::after {
-    transform: scaleX(1.4) scaleY(1.6);
-    opacity: 0;
-}
-
-.btn-animated {
-    animation: moveInBottom 5s ease-out;
-    animation-fill-mode: backwards;
-}
-
-@keyframes moveInBottom {
-    0% {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-
-    100% {
-        opacity: 1;
-        transform: translateY(0px);
-    }
-}
-</style>
-
-<div class="text-box">
-  <a href="https://dimoroz772.github.io/Linux_RedOS/"class="btn btn-white btn-animate">Back</a>
+[domain_realm]
+  dc1 = TEST.LOCAL</a>
+------------
+<a class="neonText2">systemctl status samba.service</a> |#|#| Проверка статуса Samba.
+------------
+<a class="neonText2">systemctl start samba.service</a> |#|#| Запуск службы Samba.
+------------
+<a class="neonText2">systemctl enable samba.service --now</a> |#|#| Добавление в автозапуск сервиса Samba
+------------
+<a class="neonText2">reboot</a> |#|#| Перезапуск системы
+------------
+<a class="neonText2">ping ya.ru</a> |#|#| Команда проверки dns
+------------
+<a class="neonText2">ps ax | egrep "samba|smbd|nmbd|winbindd"</a> |#|#| Команда проверки запущенных процессов
+------------
+<a class="neonText2">wbinfo --ping-dc</a> |#|#| Команда для проверки подключения службы Winbind к контроллеру домена
+При упешном подключении Winbind 
+------------
+<a class="neonText2">wbinfo -u</a> |#|#| Команда для показа доменных пользователей
+------------
+<a class="neonText2">wbinfo -g</a> |#|#| Команда для показа доменных групп
+------------
+<a class="neonText2">yum install -y redadm</a> |#|#| Команда для установки Web-интерфейса, для управления для управления доменом Samba
+------------
+<a class="neonText2">nano /etc/redadm/server.conf</a> |#|#| Команда для настройки конфигурационного файла Samba-сервера
+------------
+Пример настройки конфигурационного файла:
+<a class="neonText2">
+[SETTINGS]
+name= test.local</a> |#|#| Имя вашего домена
+<a class="neonText2">ldap_url= ldaps://192.168.88.165:636</a> |#|#| ldaps-адрес к нужному контроллеру домена, в нашем случае это Samba DC
+<a class="neonText2">cert_path= /etc/pki/ca-trust/source/anchors/ca.pem</a> |#|#| адрес сертификата TLS(SSL) (создается автоматически при установке, можете указать свой)
+------------
+<a class="neonText2">nano /etc/redadm/client.conf</a>
+------------
+<a class="neonText2">
+[SETTINGS]
+IP=192.168.88.165</a> |#|#| IP-адрес вашего сервера RedAdm, к которому будут подключаться клиенты
+<a class="neonText2">PORT=8989</a> |#|#| Порт, к которому будут подключаться клиенты РЕД АДМ
+------------
+<a class="neonText2">systemctl enable redadm.service redis.service redadm-celery-worker.service redadm-celery-beat.service --now</a> |#|#| Команда для добавления в автозагрузку
+сервисов ПО RedAdm
+------------
+<a class="neonText2">systemctl restart redadm</a>
+------------
+Вход осуществляется с помощью доменной учетной записи Linux RedOS 7.3.2 Workstation
+Ссылка для входа: http://ip-address:8989
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+На этом установка и настройка КД Samba DC окончена! Спасибо за внимание)
+</p>
 </div>
