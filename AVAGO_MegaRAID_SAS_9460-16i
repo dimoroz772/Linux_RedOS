@@ -1,0 +1,71 @@
+Создание RAID на AVAGO MegaRAID SAS 9460-16i, на ОС RedOS 7.3
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+Все описанные ниже действия выполнялись под пользователем root
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+1 - wget https://docs.broadcom.com/docs-and-downloads/raid-controllers/raid-controllers-common-files/8-07-14_MegaCLI.zip |#|#| Команда для загрузки ZIP-архива с ПО MegaCLI
+Также ZIP-архив с ПО MegaCLI можете найти у меня в репозитории.
+------------
+2 - yum install -y unzip |#|#| Команда для установка пакета unzip
+------------
+3 - unzip /home/user/8.07.14_megacli.zip -d /home/user/MegaCLI |#|#| Команда для распаковки ZIP-архива в папку "MegaCLI"
+------------
+4 - chmod -R 777 /home/user/MegaCLI |#|#| Команда выдачи полных прав доступа для папки "MegaCLI"
+------------
+5 - cd MegaCLI |#|#| Команда для перехода в папку "MegaCLI"
+------------
+6 - ls -sla |#|#| Данная команда выведет для папки в каталоге "MegaCLI". После чего выбираете нужную для вас ОС и проваливаетесь в нужный каталог.
+------------
+7 - cd Linux |#|#| Команда для перехода в папку "Linux"
+------------
+8 - yum install -y /home/user/MegaCLI/Linux/MegaCli-8.07.14-1.noarch.rpm |#|#| Команда для установки пакета "MegaCli-8.07.14-1.noarch.rpm"
+------------
+Перед настройкой RAID-массива, возможно, потребуется удалить использованную ранее конфигурацию. Для этого воспользуйтесь следующими командами:
+
+/opt/MegaRAID/MegaCli/MegaCli64 -CfgLdDel -Lall -force -aAll
+/opt/MegaRAID/MegaCli/MegaCli64 -CfgClr -Force -aAll
+/opt/MegaRAID/MegaCli/MegaCli64 -CfgForeign -Clear -A0
+------------
+9 - /opt/MegaRAID/MegaCli/MegaCli64 Adpallinfo -aall | grep '^Adapter' |#|#| Команда для определения номера адаптера, на котором будет создан RAID(в моём случае "Adapter #0")
+------------
+10 - /opt/MegaRAID/MegaCli/MegaCli64 -PDlist -aall | grep -e '^Enclosure Device ID:' -e '^Slot Number:' -e 'Firmware state' |#|#| Команда для определения в каких слотах и какой корзине установлены диски подходящие для конфигурации в массив
+------------
+В моём случае вывод от ранее выполненной команды такой:
+
+Enclosure Device ID: 65
+Slot Number: 0
+Firmware state: Hotspare, Spun down
+ 
+Enclosure Device ID: 65
+Slot Number: 1
+Firmware state: Hotspare, Spun down
+------------
+11 - /opt/MegaRAID/MegaCli/MegaCli64 -CfgLdAdd -r1 [65:0,65:1] WB RA Direct NoCachedBadBBU -a0 |#|#| Команда для создания RAID1(т.к. в моём сервере установлено 2 диска) на 0-ом адаптере
+------------
+12 - /opt/MegaRAID/MegaCli/MegaCli64 -LDInfo -Lall -aALL |#|#| Команда для просмотра состояния RAID
+В моём случае вывод от ранее выполненной команды такой:
+
+Adapter 0 -- Virtual Drive Information:
+Virtual Drive: 0 (Target Id: 0)
+Name                :
+RAID Level          : Primary-1, Secondary-0, RAID Level Qualifier-0
+Size                : 893.75 GB
+Sector Size         : 512
+Is VD emulated      : Yes
+Mirror Data         : 893.75 GB
+State               : Optimal
+Strip Size          : 256 KB
+Number Of Drives    : 2
+Span Depth          : 1
+Default Cache Policy: WriteBack, ReadAhead, Direct, No Write Cache if Bad BBU
+Current Cache Policy: WriteThrough, ReadAhead, Direct, No Write Cache if Bad BBU
+Default Access Policy: Read/Write
+Current Access Policy: Read/Write
+Disk Cache Policy   : Disk's Default
+Encryption Type     : None
+Is VD Cached: No
+
+
+
+Exit Code: 0x00
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+На этом настройка RAID закончена. Спасибо за внимание!
