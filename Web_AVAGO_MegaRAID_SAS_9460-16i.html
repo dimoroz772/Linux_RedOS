@@ -1,0 +1,134 @@
+<head>
+    <title>RAID</title>
+    <link rel="shortcut icon" href="./RAID.png" type="image/png">
+  </head>
+   <head>
+    <meta charset="utf-8">
+   </head>
+  <style>
+  .neonText1 {
+    color: #87CEFA;
+    text-shadow:
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1;
+  }
+  .neonText2 {
+    color: #00FF00;
+    text-shadow:
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400;
+  }
+  /* Additional styling */
+  body{
+      background-color: black;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+      color: #cfcfcf;
+  }
+  a {
+      text-decoration: none;
+  }
+  p {
+    text-indent: 1.5em;
+    font-family: monospace;
+    font-weight: 500;
+    white-space: pre;
+    line-height: 2;
+    letter-spacing: 1px;
+  }
+  </style>
+  <div class="container">
+  <p class="neonText1">
+  Создание RAID на AVAGO MegaRAID SAS 9460-16i, на ОС RedOS 7.3
+  -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  Все описанные ниже действия выполнялись под пользователем root
+  -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  1 |#|#| <a class="neonText2">wget https://docs.broadcom.com/docs-and-downloads/raid-controllers/raid-controllers-common-files/8-07-14_MegaCLI.zip</a> |#|#| Команда для загрузки ZIP-архива с ПО MegaCLI
+  ------------
+  Также ZIP-архив с ПО MegaCLI можете найти у меня в <a href="https://github.com/dimoroz772/Linux_RedOS/blob/Website/8.07.14_megacli.zip">REPO</a>.
+  ------------
+  2 |#|#| <a class="neonText2">yum install -y unzip</a> |#|#| Команда для установка пакета unzip
+  ------------
+  3 |#|#| <a class="neonText2">unzip /home/user/8.07.14_megacli.zip -d /home/user/MegaCLI</a> |#|#| Команда для распаковки ZIP-архива в папку "MegaCLI"
+  ------------
+  4 |#|#| <a class="neonText2">chmod -R 777 /home/user/MegaCLI</a> |#|#| Команда выдачи полных прав доступа для папки "MegaCLI"
+  ------------
+  5 |#|#| <a class="neonText2">cd MegaCLI</a> |#|#| Команда для перехода в папку "MegaCLI"
+  ------------
+  6 |#|#| <a class="neonText2">ls -sla</a> |#|#| Данная команда выведет все папки/файлы, которые находятся в каталоге "MegaCLI". После чего выбираете нужную для вас ОС и проваливаетесь в нужный каталог.
+  ------------
+  7 |#|#| <a class="neonText2">cd Linux</a> |#|#| Команда для перехода в папку "Linux"
+  ------------
+  8 |#|#| <a class="neonText2">yum install -y /home/user/MegaCLI/Linux/MegaCli-8.07.14-1.noarch.rpm</a> |#|#| Команда для установки пакета "MegaCli-8.07.14-1.noarch.rpm"
+  ------------
+  Перед настройкой RAID-массива, возможно, потребуется удалить использованную ранее конфигурацию. Для этого воспользуйтесь следующими командами:
+  
+  <a class="neonText2">/opt/MegaRAID/MegaCli/MegaCli64 -CfgLdDel -Lall -force -aAll</a>
+  ------------
+  <a class="neonText2">/opt/MegaRAID/MegaCli/MegaCli64 -CfgClr -Force -aAll</a>
+  ------------
+  <a class="neonText2">/opt/MegaRAID/MegaCli/MegaCli64 -CfgForeign -Clear -A0</a>
+  ------------
+  9 |#|#| <a class="neonText2">/opt/MegaRAID/MegaCli/MegaCli64 Adpallinfo -aall | grep '^Adapter'</a> |#|#| Команда для определения номера адаптера, на котором будет создан RAID(в моём случае "Adapter #0")
+  ------------
+  10 |#|#| <a class="neonText2">/opt/MegaRAID/MegaCli/MegaCli64 -PDlist -aall | grep -e '^Enclosure Device ID:' -e '^Slot Number:' -e 'Firmware state'</a> |#|#| Команда для определения в каких слотах и какой корзине установлены диски подходящие для конфигурации в массив
+  ------------
+  В моём случае вывод от ранее выполненной команды такой:
+  <a class="neonText2">
+  Enclosure Device ID: 65
+  Slot Number: 0
+  Firmware state: Hotspare, Spun down
+     
+  Enclosure Device ID: 65
+  Slot Number: 1
+  Firmware state: Hotspare, Spun down</a>
+  ------------
+  11 |#|#| <a class="neonText2">/opt/MegaRAID/MegaCli/MegaCli64 -CfgLdAdd -r1 [65:0,65:1] WB RA Direct NoCachedBadBBU -a0</a> |#|#| Команда для создания RAID1(т.к. в моём сервере установлено 2 диска) на 0-ом адаптере
+  ------------
+  12 |#|#| <a class="neonText2">/opt/MegaRAID/MegaCli/MegaCli64 -LDInfo -Lall -aALL</a> |#|#| Команда для просмотра состояния RAID
+  ------------
+  В моём случае вывод от ранее выполненной команды такой:
+  <a class="neonText2">
+  Adapter 0 -- Virtual Drive Information:
+  Virtual Drive: 0 (Target Id: 0)
+  Name                :
+  RAID Level          : Primary-1, Secondary-0, RAID Level Qualifier-0
+  Size                : 893.75 GB
+  Sector Size         : 512
+  Is VD emulated      : Yes
+  Mirror Data         : 893.75 GB
+  State               : Optimal
+  Strip Size          : 256 KB
+  Number Of Drives    : 2
+  Span Depth          : 1
+  Default Cache Policy: WriteBack, ReadAhead, Direct, No Write Cache if Bad BBU
+  Current Cache Policy: WriteThrough, ReadAhead, Direct, No Write Cache if Bad BBU
+  Default Access Policy: Read/Write
+  Current Access Policy: Read/Write
+  Disk Cache Policy   : Disk's Default
+  Encryption Type     : None
+  Is VD Cached: No
+
+
+
+  Exit Code: 0x00</a>
+  -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  На этом инструкция завершена! Спасибо за внимание!
+  </p>
+  </div>
