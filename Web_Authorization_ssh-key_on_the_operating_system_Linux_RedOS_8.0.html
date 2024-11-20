@@ -1,0 +1,265 @@
+<head>
+  <title>Authorization via ssh key on Linux and Windows</title>
+  <link rel="shortcut icon" href="./logo.png" type="image/png">
+</head>
+ <head>
+  <meta charset="utf-8">
+ </head>
+<style>
+.neonText1 {
+  color: #87CEFA;
+  text-shadow:
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1,
+      0 0 1px #4169E1;
+}
+.neonText2 {
+  color: #00FF00;
+  text-shadow:
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400,
+      0 0 1px #006400;
+}
+/* Additional styling */
+body{
+    background-color: black;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    color: #cfcfcf;
+}
+a {
+    text-decoration: none;
+}
+p {
+  text-indent: 1.5em;
+  font-family: monospace;
+  font-weight: 500;
+  white-space: pre;
+  line-height: 2;
+  letter-spacing: 1px;
+}
+</style>
+<div class="container">
+<p class="neonText2">
+<a class="neonText1">
+Authorization ssh-key on the operating system Linux RedOS 8.0
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+Все описанные ниже действия выполнялись под пользователем root
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+Всем привет! Для реализации данного проекта мне потребовалось:
+
+1) Рабочая станция на ОС RedOS;
+2) Сгенерированные ssh-ключи со схемой подписи ED25519;
+3) Создать каталог, переместить созданные ключи и выдать нужные права доступа к каталогу и ключам;
+4) Настроить клиентскую ВМ на Linux;
+5) Настроить клиентскую ВМ на Windows.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+Предисловие:
+------------
+Nano — это консольный текстовый редактор для UNIX и Unix-подобных операционных систем, основанный на библиотеке curses и распространяемый под лицензией GNU GPL.
+------------
+SSH — это сетевой протокол прикладного уровня, позволяющий производить удалённое управление операционной системой и туннелирование TCP-соединений.
+------------
+SSH-ключи — это пара криптографических ключей, которые обеспечивают безопасную связь между двумя устройствами.
+------------
+ED25519 — Это схема подписи на эллиптической кривой, которая обеспечивает лучшую безопасность, чем ECDSA и DSA, и хорошую производительность.
+------------
+OpenSSH — это свободная реализация сетевого протокола, позволяющего создавать защищенные соединения, удаленно управлять операционной системой и туннелировать TCP-соединения.
+------------
+Chocolatey — это менеджер пакетов с интерфейсом командной строки и установщик программного обеспечения для Windows на машинном уровне.
+------------
+.NET Framework — это среда разработки программного обеспечения для создания и запуска приложений в Windows.
+------------
+chmod — это команда для изменения прав доступа к файлам и каталогам, используемая в Unix-подобных операционных системах.
+------------
+10.10.10.10 — IP-адрес ВМ с ОС Linux Fedora 39.
+------------
+10.10.10.11 — IP-адрес ВМ с ОС Windows Server 2016 Standard GUI.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+1) Подключения по ssh-ключам работает на любых рабочих станциях с ОС Linux. В моём случае была использована рабочая станция с ОС Linux RedOS 8.0 Standard Edition.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+2) Генерация ssh-ключей со схемой подписи ED25519.
+------------</a>
+ssh-keygen -t ed25519 <a class="neonText1">|#|#| Команда для генерации пары ssh-ключей со схемой подписи ED25519</a>
+<a class="neonText1">------------
+После выполнения команды у вас появятся диалоговые сообщения в консоли:
+</a>
+Generating public/private ed25519 key pair.                      <a class="neonText1">|#|#|     Генерация пары открытого/частного ключей ed25519.</a>
+Enter file in which to save the key (/root/.ssh/id_ed25519):     <a class="neonText1">|#|#|     В данной строке можете изменить путь сохранения пары ключей вместе с их наименованием.</a>
+Enter passphrase (empty for no passphrase):                      <a class="neonText1">|#|#|     По своему желанию можете добавить ключам парольную фразу, либо просто нажать Enter.</a>
+Enter same passphrase again:                                     <a class="neonText1">|#|#|     Повторите парольную фразу если она была введена выше.</a>
+Your identification has been saved in /root/.ssh/id_ed25519      <a class="neonText1">|#|#|     Приватный ключ был сохранен в /root/.ssh/id_ed25519</a>
+Your public key has been saved in /root/.ssh/id_ed25519.pub      <a class="neonText1">|#|#|     Публичный ключ был сохранен в /root/.ssh/id_ed25519.pub</a>
+The key fingerprint is:                                          <a class="neonText1">|#|#|     Ниже будет отрисован отпечаток ключа.</a>
+SHA256:lJb+XRNpJdkwC1aAdTwNJI2eUDlDp/0Q+VUJRHQAQwU root@probook
+The key's randomart image is:
++--[ED25519 256]--+
+|          .E//&O=|
+|         oo.*BBO+|
+|        =  o.+Bo.|
+|       +    o. +.|
+|        S     o .|
+|         . . . . |
+|          . .    |
+|                 |
+|                 |
++----[SHA256]-----+
+<a class="neonText1">------------
+Для удобства также можете поменять стоковые наименования ssh-ключей.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+3) Создание каталога, перемещение созданных ключей и выдача нужных прав доступа к каталогу и ключам.
+------------
+Если вам нужно хранить ключи не в домашнем каталоге пользователя, то создайте каталог ".ssh" в нужном для вас месте:</a>
+
+mkdir /home/user/.ssh <a class="neonText1">|#|#| Команда для создания каталога ".ssh" в домашней директории пользователя "user"
+------------
+Далее вам нужно скопировать/переместить сгенерированную пару, либо только приватный ключ в созданный ранее каталог ".ssh":</a>
+
+cp /root/.ssh/id_ed25519 /home/user/.ssh/ <a class="neonText1">|#|#| Команда для копирования приватного ssh-ключа из root-каталога в user-каталог</a>
+<a class="neonText1">------------</a>
+cp /root/.ssh/id_ed25519.pub /home/user/.ssh/ <a class="neonText1">|#|#| Команда для копирования публичного ssh-ключа из root-каталога в user-каталог
+------------
+После копирования ключей из root-каталога в user-каталог, настоятельно рекомендую от них избавиться в "/root/.ssh/".
+------------
+После того как ssh-ключи оказались в нужном для вас месте, перейдём к выдаче нужных прав доступа каталогу ".ssh" и приватному ключу(данные манипуляции выполнять ИМЕННО НА РАБОЧЕЙ СТАНЦИИ НЕ ОБЯЗАТЕЛЬНО):</a>
+
+chmod 700 /home/user/.ssh/ <a class="neonText1">|#|#| Команда для выдачи каталогу ".ssh" прав drwx------                                     |\
+                                                                                                                        |\</a>
+chown root:root /home/user/.ssh/ <a class="neonText1">|#|#| Команда для смены группы и владельца у каталога ".ssh"                           |         Данные манипуляции были выполнены для того, чтобы
+                                                                                                                        |———      доступ к каталогу ".ssh" и ssh-ключам, которые</a>
+chmod 600 /home/user/.ssh/id_ed25519 <a class="neonText1">|#|#| Команда для выдачи приватному ключу "id_ed25519" прав -rw-------             |         в нём находятся, имел только пользователь "root".
+                                                                                                                        |/</a>
+chmod 600 /home/user/.ssh/id_ed25519.pub <a class="neonText1">|#|#| Команда для выдачи приватному ключу "id_ed25519.pub" прав -rw-------     |/
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+4) Настройка клиентской ВМ на Linux.
+------------
+В моём случае есть ВМ с ОС Linux Fedora 39. На ней я хочу настроить авторизацию только по ssh-ключу. Приступим!
+------------
+Для начала нужно перейти в каталог ".ssh" и создать там файл "authorized_keys". Я хочу, чтобы чтобы после подключения к данной ВМ, я сразу же логинился под пользователем "root". Поэтому
+прописал свой публичный ssh-ключ в файле "authorized_keys", в каталоге "/root/.ssh/".
+</a>
+cd /root/.ssh/ <a class="neonText1">|#|#| Команда для перехода в каталог ".ssh"</a>
+------------
+nano /root/.ssh/authorized_keys <a class="neonText1">|#|#| Команда для создания и открытия файла "authorized_keys" в текстовом редакторе Nano
+------------
+Далее копируем текстовую информацию из файла "id_ed25519.pub" в открытый раннее файл "authorized_keys", после сохраняем и закрываем.
+------------</a>
+chmod 700 /root/.ssh/ <a class="neonText1">|#|#| Команда для выдачи каталогу ".ssh" прав drwx------
+------------</a>
+chmod 600 /root/.ssh/authorized_keys <a class="neonText1">|#|#| Команда для выдачи файлу "authorized_keys" прав -rw-------
+------------
+После выполненых манипуляций пробуем подключиться со своей рабочей станции из ОС RedOS 8.0 к ВМ с ОС Linux Fedora 39:
+</a>
+ssh -i /home/user/.ssh/id_ed25519 root@10.10.10.10 <a class="neonText1">|#|#| Команда для подключения к ВМ с ОС Linux Fedora 39 из рабочей станции с ОС RedOS 8.0, с помощью приватного ssh-ключа "id_ed25519".
+Если все прошло успешно, то вы должны были залогиниться на ВМ под пользователем "root".
+------------
+Чтобы отключить подключение по ssh с помощью пароля, выполните следующие манипуляции:
+</a>
+nano /etc/ssh/sshd_config <a class="neonText1">|#|#| Команда для открытия конфигурационного файла "sshd_config" в текстовом редакторе Nano
+
+Далее находим строку "</a>#PasswordAuthentication yes<a class="neonText1">" и приводим её к следующему виду:
+</a>
+PasswordAuthentication no
+<a class="neonText1">------------
+После внесения изменений сохраняем и закрываем конфигурационный файл. Чтобы изменения вступили в силу, нужно выполнить перезапуск службы "sshd":
+</a>
+systemctl restart sshd <a class="neonText1">|#|#| Команда для перезапуска службы sshd
+------------
+После чего можно попробовать подключиться к ВМ без ssh-ключа, но этого сделать не получится. В итоге вы получите отказ в доступе:
+
+ssh root@10.10.10.10
+root@10.10.10.10: Permission denied (publickey,gssapi-keyex,gssapi-with-mic).</a>
+<a class="neonText1">--------------------------------------------------------------------------------------------------------------------------------------------------------------
+5) Настройка клиентской ВМ на Windows Server 2016 Standard GUI.
+------------
+В моём случае есть ВМ с ОС Windows Server 2016 Standard GUI. На ней я хочу настроить авторизацию только по ssh-ключу. Приступим!
+------------
+Изначально убедитесь в том, что на ВМ установлено ПО .NET Framework 4.8. Если его нет, то скачайте и установите его с официального сайта:</a>
+https://download.visualstudio.microsoft.com/download/pr/2d6bb6b2-226a-4baa-bdec-798822606ff1/8494001c276a4b96804cde7829c04d7f/ndp48-x86-x64-allos-enu.exe
+<a class="neonText1">------------
+После чего можно приступать к установке ПО Chocolatey:
+</a>
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1')) <a class="neonText1">|#|#| Команда для установки ПО Chocolatey</a>
+<a class="neonText1">------------
+После успешной установки ПО Chocolatey, приступаем к установке ПО OpenSSH:
+</a>
+choco install openssh -y -f <a class="neonText1">|#|#| Команда для установки ПО OpenSSH
+------------</a>
+Restart-Computer -Force <a class="neonText1">|#|#| Команда для перезагрузки ОС WIndows Server 2016 Standard GUI
+------------</a>
+ssh -Vssh -V <a class="neonText1">|#|#| Команда для просмотра установленной версии ПО OpenSSH
+------------</a>
+cd "C:\Program Files\OpenSSH-Win64" <a class="neonText1">|#|#| Команда для перехода в каталог "C:\Program Files\OpenSSH-Win64"
+------------</a>
+Running Installation & Setup-Script <a class="neonText1">|#|#| Команда для запуска сценария установки и настройки служб sshd и ssh-agent
+------------</a>
+New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22 <a class="neonText1">|#|#| Команда для создания необходимого правила в Firewall
+------------</a>
+net start sshd <a class="neonText1">|#|#| Команда для запуска службы OpenSSH
+------------</a>
+Set-Service sshd -StartupType Automatic <a class="neonText1">|#|#| Команда для автоматического запуска службы OpenSSH при запуске ОС
+------------</a>
+get-service | findstr ssh <a class="neonText1">|#|#| Команда для проверки стасута служб "sshd-agent" и "sshd"
+------------
+После выполненых манипуляций можно проверять подключение к ВМ на Windows Server 2016 Standard GUI из рабочей станции с ОС RedOS 8.0. Если все действия выше были выполнены успешно,
+то вы получите готовое рабочее решение.
+------------</a>
+$acl = Get-Acl C:\ProgramData\ssh\administrators_authorized_keys                                                             <a class="neonText1">|#|#|\</a>
+$acl.SetAccessRuleProtection($true, $false)                                                                                  <a class="neonText1">|#|#|\</a>
+$administratorsRule = New-Object system.security.accesscontrol.filesystemaccessrule("Administrators","FullControl","Allow")  <a class="neonText1">|#|#|     Данными командами настраиваются определенные</a>
+$systemRule = New-Object system.security.accesscontrol.filesystemaccessrule("SYSTEM","FullControl","Allow")                  <a class="neonText1">|#|#|———  разрешения для конфигурационного файла</a>
+$acl.SetAccessRule($administratorsRule)                                                                                      <a class="neonText1">|#|#|     "administrators_authorized_keys".</a>
+$acl.SetAccessRule($systemRule)                                                                                              <a class="neonText1">|#|#|/</a>
+$acl | Set-Acl                                                                                                               <a class="neonText1">|#|#|/</a>
+<a class="neonText1">------------</a>
+New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -PropertyType String -Force <a class="neonText1">|#|#| Команда для внесения некоторых изменений в оболочке PowerShell
+------------
+Далее открываем конфигурационный файл "sshd_config", который расположен в каталоге "C:\ProgramData\ssh\" и приводим нужные нам строчки к определенному виду:
+</a>
+#PubkeyAuthentication yes > PubkeyAuthentication yes
+#StrictModes yes > StrictModes no
+<a class="neonText1">------------</a>
+Restart-Service sshd <a class="neonText1">|#|#| Команда для перезапуска службы sshd
+------------</a>
+cd C:\Users\Администратор\ <a class="neonText1">|#|#| Команда для перехода в каталог "C:\Users\Администратор\"
+
+либо(В моём случае сработал второй вариант, но я так особо и не понял, как создался второй пользователь "Администратор.WIN-K0OJQLRMLUV".)</a>
+
+cd C:\Users\Администратор.WIN-K0OJQLRMLUV\ <a class="neonText1">|#|#| Команда для перехода в каталог "C:\Users\Администратор.WIN-K0OJQLRMLUV\"(WIN-K0OJQLRMLUV - это имя ВМ)
+------------</a>
+mkdir .ssh <a class="neonText1">|#|#| Команда для создания каталога ".ssh"
+------------</a>
+cd .ssh <a class="neonText1">|#|#| Команда для перехода в каталог ".ssh"
+------------</a>
+New-Item -Path 'authorized_keys' -ItemType File <a class="neonText1">|#|#| Команда для создания пустого файла с наименованием "authorized_keys"
+------------
+Далее открываем созданный ранее файл "authorized_keys" в любом текстовом редакторе и прописываем в файле публичный ключ, после чего сохраняем и закрываем файл.
+------------</a>
+cd C:\ProgramData\ssh\ <a class="neonText1">|#|#| Команда для перехода в каталог "C:\ProgramData\ssh\"</a>
+------------
+New-Item -Path 'administrators_authorized_keys' -ItemType File <a class="neonText1">|#|#| Команда для создания пустого файла с наименованием "administrators_authorized_keys"
+------------
+Далее открываем созданный ранее файл "administrators_authorized_keys" в любом текстовом редакторе и прописываем публичный ключ, после чего сохраняем и закрываем.
+------------</a>
+Restart-Service sshd <a class="neonText1">|#|#| Команда для перезапуска службы sshd
+------------
+После проделанных выше манипуляций можете пробовать подключаться к ВМ с ОС Windows Server 2016 Standard GUI из рабочей станции с ОС RedOS 8.0 через службу ssh, используя ssh-ключ.
+Если подключение прошло успешно, то все настроено правильно!
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+На этом инструкция закончена! Всем спасибо за внимание!</a>
+</p>
+</div>
