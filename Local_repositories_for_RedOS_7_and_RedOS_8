@@ -1,0 +1,335 @@
+Создание локального репозитория для операционных систем RedOS 7 и RedOS 8.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+Все описанные ниже работы проводились на ОС RedOS 8 Server.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+Все действия описанные ниже выполнялись под пользователем root.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+Всем привет! Для реализации данного проекта мне потребовалось:
+
+1) Назначить статическую IP-адресацию;
+2) Обновить пакеты ОС Linux RedOS 8 Server до последней версии;
+3) Установить все нужные пакеты и запустить необходимые службы;
+4) Создание нужных каталогов, файлов репозиториев, загрузка пакетов на сервер и создание локального зеркала репозитория;
+5) Создание скриптов для обновления репозиториев и добавление их в Crontab;
+6) Пример подключения собственного локального репозитория на клиентском ПК.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+Предисловие:
+------------
+Nano — это консольный текстовый редактор для UNIX и Unix-подобных операционных систем, основанный на библиотеке curses и распространяемый под лицензией GNU GPL.
+------------
+NMTUI — это инструмент командной строки, который используется для настройки сети в системах Gnu / Linux. При запуске он вызывает графический текстовый 
+интерфейс, который помогает пользователям легко и эффективно настраивать сетевые интерфейсы.
+------------
+Apache HTTP-сервер — это свободный веб-сервер.
+------------
+Cron — это система для автоматического запуска программ и скриптов на сервере в определённое время.
+------------
+Репозиторий — это место, где хранятся и поддерживаются какие-либо данные.
+------------
+Repo id — это идентификационный номер репозитория.
+------------
+10.10.10.10 — это IP-Address локального сервера с репозиториями.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+1) Для избежания потери связи с АРМ/VM, нужно позаботиться о статической IP-адресации. Её можно настроить как на самой АРМ/VM, так и на самом сетевом 
+устройстве. Статическую адресацию можно прописать с помощью инструмента командной строки nmtui.
+------------
+yum install -y NetworkManager-tui |#|#| Установка пакета "nmtui" для настройки сети на АРМ/VM
+------------
+Гайд по тому, как пользоваться инструментом nmtui, вы можете посмотреть в интернете.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+2) Обновление пакетов системы.
+------------
+yum update -y && yum upgrade -y |#|#| Поиск и обновление пакетов системы
+------------
+reboot |#|#| Команда для перезагрузки АРМ/VM
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+3) Установка всех нужных пакетов и запуск необходимых служб.
+------------
+yum install -y httpd createrepo_c dnf-utils cronie |#|#| Команда для установки всех нужных пакетов
+------------
+systemctl enable httpd --now |#|#| Команда для запуска и добавления в автозагрузку службы httpd
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+4) Создание нужных каталогов, файлов репозиториев, загрузка пакетов на сервер и создание локального зеркала репозитория.
+------------
+mkdir /mnt/repodisk/ |#|#| Команда для создания каталога "/mnt/repodisk/"
+------------
+mkdir /var/www/html/repos/ |#|#| Команда для создания каталога "/var/www/html/repos/"
+------------
+ln -s /mnt/repodisk/ /var/www/html/repos/ |#|#| Команда для создания символической ссылки
+------------
+semanage fcontext -a -t httpd_sys_content_t "/mnt/repodisk(/.*)?" |#|#| Команда для приминения правильного контекста SELinux, для файловых систем с поддержкой
+Extended File Attributes - ext2, ext3, ext4, jfs, xfs, btrfs
+------------
+nano /etc/yum.repos.d/RedOS-Base.repo |#|#| Команда для редактирования файла репозитория "RedOS-Base.repo"
+
+Поменяйте в конце файла значение строки "enabled=1" на "enabled=0", после чего сохраните и закройте файл.
+------------
+nano /etc/yum.repos.d/RedOS-Updates.repo |#|#| Команда для редактирования файла репозитория "RedOS-Updates.repo"
+------------
+
+Поменяйте в конце файла значение строки "enabled=1" на "enabled=0", после чего сохраните и закройте файл.
+------------
+mkdir /root/def_repo/ |#|#| Команда для создания каталога "/root/def_repo/"
+------------
+mv /etc/yum.repos.d/RedOS-Base.repo /root/def_repo/ |#|#| Команда для переноса файла репозитория "RedOS-Base.repo" из каталога "/etc/yum.repos.d/" в каталог "/etc/yum.repos.d/"
+------------
+mv /etc/yum.repos.d/RedOS-Updates.repo /root/def_repo/ |#|#| Команда для переноса файла репозитория "RedOS-Updates.repo" из каталога "/etc/yum.repos.d/" в каталог "/etc/yum.repos.d/"
+------------
+nano /etc/yum.repos.d/RedOS_7_Base_SRC.repo |#|#| Команда для создания файла репозитория "RedOS_7_Base_SRC.repo"
+
+Приведите файл репозитория к следующему виду:
+
+[base7]
+name=RedOS - Base
+baseurl=https://repo1.red-soft.ru/redos/7.3/$basearch/os,https://mirror.yandex.ru/redos/7.3/$basearch/os,http://repo.red-soft.ru/redos/7.3/$basearch/os
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RED-SOFT
+enabled=1
+------------
+mkdir /var/www/html/repos/redos7/ |#|#| Команда для создания каталога "/var/www/html/repos/redos7/"
+------------
+cd /var/www/html/repos/redos7/ |#|#| Команда для перехода в ранее созданный каталог "/var/www/html/repos/redos7/"
+------------
+reposync --repoid=base7 --download-metadata --downloadcomps |#|#| Команда для загрузки пакетов из репозитория "RedOS - Base"
+
+После выполнения данной команды, в каталоге "/var/www/html/repos/redos7/" системно создастся папка "base7". Также, аналогично при выполнении команд "reposync*",
+будут создаваться и другие папки с названиями "repoid".
+При использовании дополнительного параметра --newest-only будут загружены только самые новые версии каждого пакета.
+Пример:
+
+reposync --repoid=base7 --newest-only --downloadcomps |#|#| Команда для загрузки только самых новых версий каждого пакета из репозитория "RedOS - Base"
+------------
+createrepo -v /var/www/html/repos/redos7/base7/ -g comps.xml |#|#| Команда для формирования метаданных локального репозитория "base7"
+
+Параметр "-g comps.xml" используется только при создании локального репозитория RedOS - Base.
+    ------------
+nano /etc/yum.repos.d/RedOS_7_Updates_SRC.repo |#|#| Команда для создания файла репозитория "RedOS_7_Updates_SRC.repo"
+    
+Приведите файл репозитория к следующему виду:
+
+[updates7]
+name=RedOS - Updates
+baseurl=https://repo1.red-soft.ru/redos/7.3/$basearch/updates,https://mirror.yandex.ru/redos/7.3/$basearch/updates,http://repo.red-soft.ru/redos/7.3/$basearch/updates
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RED-SOFT
+enabled=1
+------------
+reposync --repoid=updates7 --download-metadata --downloadcomps |#|#| Команда для загрузки пакетов из репозитория "RedOS - Updates"
+------------
+createrepo -v /var/www/html/repos/redos7/updates7/ |#|#| Команда для формирования метаданных локального репозитория "updates7"
+------------
+nano /etc/yum.repos.d/RedOS_7_Kernels_SRC.repo |#|#| Команда для создания файла репозитория "RedOS_7_Kernels_SRC.repo"
+    
+Приведите файл репозитория к следующему виду:
+
+[kernels7]
+name=Kernels updates for RED OS 7.3
+baseurl=https://repo1.red-soft.ru/redos/7.3/$basearch/kernels,https://mirror.yandex.ru/redos/7.3/$basearch/kernels,http://repo.red-soft.ru/redos/7.3/$basearch/kernels
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RED-SOFT
+------------
+reposync --repoid=kernels7 --download-metadata --downloadcomps |#|#| Команда для загрузки пакетов из репозитория "Kernels updates for RED OS 7.3"
+------------
+createrepo -v /var/www/html/repos/redos7/kernels7/ |#|#| Команда для формирования метаданных локального репозитория "kernels7"
+------------
+nano /etc/yum.repos.d/RedOS_7_Kernels6_src.repo |#|#| Команда для создания файла репозитория "RedOS_7_Kernels6_src.repo"
+    
+Приведите файл репозитория к следующему виду:
+
+[kernels6]
+name=Repositories for kernels6
+baseurl=https://repo1.red-soft.ru/redos/7.3/$basearch/extras/kernels6-73,https://mirror.yandex.ru/redos/7.3/$basearch/extras/kernels6-73,http://repo.red-soft.ru/redos/7.3/$basearch/extras/kernels6-73
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RED-SOFT
+------------
+reposync --repoid=kernels6 --download-metadata --downloadcomps |#|#| Команда для загрузки пакетов из репозитория "Repositories for kernels6"
+------------
+createrepo -v /var/www/html/repos/redos7/kernels6/ |#|#| Команда для формирования метаданных локального репозитория "kernels6"
+------------
+nano /etc/yum.repos.d/RedOS_8_Base_SRC.repo |#|#| Команда для создания файла репозитория "RedOS_8_Base_SRC.repo"
+    
+Приведите файл репозитория к следующему виду:
+
+[base8]
+name=RedOS - Base
+baseurl=https://repo1.red-soft.ru/redos/8.0/$basearch/os,https://mirror.yandex.ru/redos/8.0/$basearch/os,http://repo.red-soft.ru/redos/8.0/$basearch/os
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RED-SOFT
+enabled=1
+------------
+mkdir -p /var/www/html/repos/redos8/ |#|#| Команда для создания каталога "/var/www/html/repos/redos8/"
+------------
+cd /var/www/html/repos/redos8/ |#|#| Команда для перехода в ранее созданный каталог "/var/www/html/repos/redos8/"
+------------
+reposync --repoid=base8 --download-metadata --downloadcomps |#|#| Команда для загрузки пакетов из репозитория "RedOS - Base"
+------------
+createrepo -v /var/www/html/repos/redos8/base8/ -g comps.xml |#|#| Команда для формирования метаданных локального репозитория "base8"
+------------
+nano /etc/yum.repos.d/RedOS_8_Updates_SRC.repo |#|#| Команда для создания файла репозитория "RedOS_8_Updates_SRC.repo"
+    
+Приведите файл репозитория к следующему виду:
+
+[updates8]
+name=RedOS - Updates
+baseurl=https://repo1.red-soft.ru/redos/8.0/$basearch/updates,https://mirror.yandex.ru/redos/8.0/$basearch/updates,http://repo.red-soft.ru/redos/8.0/$basearch/updates
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RED-SOFT
+enabled=1
+------------
+reposync --repoid=updates8 --download-metadata --downloadcomps |#|#| Команда для загрузки пакетов из репозитория "RedOS - Updates"
+------------
+createrepo -v /var/www/html/repos/redos8/updates8/ |#|#| Команда для формирования метаданных локального репозитория "updates8"
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+5) Создание скриптов для обновления репозиториев и добавление их в Crontab.
+------------
+cd /root/ |#|#| Команда для перехода в каталог "/root/"
+------------
+nano repo7.sh |#|#| Команда для создания конфигурационного bash-файла, который будет обновлять локальные репозитории RedOS 7
+
+Приведите файл репозитория к следующему виду:
+
+#!/bin/bash
+DESTDIR=/var/www/html/repos/redos7
+REPOIDS="base7 updates7 kernels7 kernels6"
+dnf makecache
+for REPOID in $REPOIDS; do
+    if [[ -f "$DESTDIR/$REPOID/.repodata" ]];
+      then
+         rm -rf $DESTDIR/$REPOID/.repodata
+    fi
+    reposync --repo $REPOID --newest-only --downloadcomps -p $DESTDIR
+    if [[ -f "$DESTDIR/$REPOID/comps.xml" ]];
+      then
+         createrepo --update $DESTDIR/$REPOID -g comps.xml
+      else
+         createrepo --update $DESTDIR/$REPOID
+    fi
+done
+------------
+chmod 777 repo7.sh |#|#| Команда для выдачи полных прав bash-файлу "repo7.sh"
+------------
+nano repo8.sh
+
+Приведите файл репозитория к следующему виду:
+
+#!/bin/bash
+DESTDIR=/var/www/html/repos/redos8
+REPOIDS="base8 updates8"
+dnf makecache
+for REPOID in $REPOIDS; do
+    if [[ -f "$DESTDIR/$REPOID/.repodata" ]];
+    then
+        rm -rf $DESTDIR/$REPOID/.repodata
+    fi
+    reposync --repo $REPOID --newest-only --downloadcomps -p $DESTDIR
+    if [[ -f "$DESTDIR/$REPOID/comps.xml" ]];
+      then
+        createrepo --update $DESTDIR/$REPOID -g comps.xml
+      else
+        createrepo --update $DESTDIR/$REPOID
+    fi
+done
+------------
+chmod 777 repo8.sh |#|#| Команда для выдачи полных прав bash-файлу "repo8.sh"
+------------
+systemctl enable crond && systemctl start crond |#|#| Команда для запуска и добавления в автозагрузку службы crond
+------------
+crontab -e |#|#| Команда для открытия конфигурационного файла службы "crond"
+    
+В примере ниже будут описаны две задачи в Crond, которые будут запускать скрипты "repo7.sh" в 01:30 и "repo8.sh" в 03:30, в каждое воскресенье.
+
+30 1 * * 7 /root/repo7.sh
+30 3 * * 7 /root/repo8.sh
+------------
+less /etc/crontab |#|#| Команда для просмотра задач в Crond
+------------
+systemctl restart crond |#|#| Команда для перезапуска службы "Crond"
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+6) Пример подключения собственного локального репозитория на клиентском ПК.
+------------
+                                                                            RedOS 8
+
+nano /etc/yum.repos.d/RedOS-Base.repo |#|#| Команда для редактирования файла репозитория "RedOS-Base.repo"
+
+Приведите файл репозитория к следующему виду(где 10.10.10.10 — это IP-Address локального сервера с репозиториями):
+
+[base]
+name=RedOS - Base
+baseurl=http://10.10.10.10/repos/redos8/base8/
+#baseurl=https://repo1.red-soft.ru/redos/8.0/$basearch/os,https://mirror.yandex.ru/redos/8.0/$basearch/os,http://repo.red-soft.ru/redos/8.0/$basearch/os
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RED-SOFT
+enabled=1
+------------
+nano /etc/yum.repos.d/RedOS-Updates.repo |#|#| Команда для редактирования файла репозитория "RedOS-Updates.repo"
+
+Приведите файл репозитория к следующему виду(где 10.10.10.10 — это IP-Address локального сервера с репозиториями):
+
+[updates]
+name=RedOS - Updates
+baseurl=http://10.10.10.10/repos/redos8/updates8/
+#baseurl=https://repo1.red-soft.ru/redos/8.0/$basearch/updates,https://mirror.yandex.ru/redos/8.0/$basearch/updates,http://repo.red-soft.ru/redos/8.0/$basearch/updates
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RED-SOFT
+enabled=1
+------------
+                                                                            RedOS 7
+
+nano /etc/yum.repos.d/RedOS-Base.repo
+
+Приведите файл репозитория к следующему виду(где 10.10.10.10 — это IP-Address локального сервера с репозиториями):
+
+[base]
+name=RedOS - Base
+baseurl=http://10.10.10.10/repos/redos7/base7/
+#baseurl=https://repo1.red-soft.ru/redos/7.3/$basearch/os,https://mirror.yandex.ru/redos/7.3/$basearch/os,http://repo.red-soft.ru/redos/7.3/$basearch/os
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RED-SOFT
+enabled=1
+------------
+nano /etc/yum.repos.d/RedOS-Updates.repo
+    
+Приведите файл репозитория к следующему виду(где 10.10.10.10 — это IP-Address локального сервера с репозиториями):
+
+[updates]
+name=RedOS - Updates
+baseurl=http://10.10.10.10/repos/redos7/updates7/
+#baseurl=https://repo1.red-soft.ru/redos/7.3/$basearch/updates,https://mirror.yandex.ru/redos/7.3/$basearch/updates,http://repo.red-soft.ru/redos/7.3/$basearch/updates
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RED-SOFT
+enabled=1
+------------
+nano /etc/yum.repos.d/RedOS-kernels6.repo
+
+Приведите файл репозитория к следующему виду(где 10.10.10.10 — это IP-Address локального сервера с репозиториями):
+
+[kernels6]
+name=Repositories for kernels6
+baseurl=http://10.10.10.10/repos/redos7/kernels6/
+#baseurl=https://repo1.red-soft.ru/redos/7.3/$basearch/extras/kernels6-73,https://mirror.yandex.ru/redos/7.3/$basearch/extras/kernels6-73,http://repo.red-soft.ru/redos/7.3/$basearch/extras/kernels6-73
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RED-SOFT
+------------
+nano /etc/yum.repos.d/RedOS-kernels.repo
+
+Приведите файл репозитория к следующему виду(где 10.10.10.10 — это IP-Address локального сервера с репозиториями):
+
+[kernels]
+name=Kernels updates for RED OS 7.3
+baseurl=http://10.10.10.10/repos/redos7/kernels7/
+#baseurl=https://repo1.red-soft.ru/redos/7.3/$basearch/kernels,https://mirror.yandex.ru/redos/7.3/$basearch/kernels,http://repo.red-soft.ru/redos/7.3/$basearch/kernels
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RED-SOFT
+------------
+
+                                                                        ↓↓↓ Дополнительные команды ↓↓↓
+    
+dnf repoinfo base7 | grep -iE 'размер.*репозитория' |#|#| Команда для уточнения размера репозитория "base7"
+------------
+dnf repoinfo | grep -iE 'размер.*репозитория' | awk -F ':' '{size = $2; sub(/M$/, "", size); if (index($2, "M") > 0) total += size / 1024; else total += size} END {printf "Общий размер \033[41mвсех подключенных\033[0m репозиториев: %.2f G\n", total}' |#| Команда для уточнения суммарного размера по всем подключенным репозиториям
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+На этом инструкция завершена! Всем спасибо за внимание!
