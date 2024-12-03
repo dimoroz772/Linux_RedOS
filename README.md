@@ -17,3 +17,5 @@
 <i> <a href="https://github.com/dimoroz772/Linux_RedOS/blob/main/Install_Zabbix_Server_6.4.9"><b>Install Zabbix Server 6.4.9</b></a><br/><i/>
  <br/>
 <i> <a href="https://github.com/dimoroz772/Linux_RedOS/blob/main/Authorization_ssh-key_on_the_operating_system_Linux_RedOS_8.0"><b>Authorization ssh-key on the operating system Linux RedOS 8.0</b></a><br/><i/>
+ <br/>
+<i> <a href="https://github.com/dimoroz772/Linux_RedOS/blob/main/Local_repositories_for_RedOS_7_and_RedOS_8"><b>Local repositories for RedOS 7 and RedOS 8</b></a><br/><i/>
