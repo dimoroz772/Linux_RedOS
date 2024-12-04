@@ -277,7 +277,7 @@ enabled=1
 ------------
                                                                             RedOS 7
 
-nano /etc/yum.repos.d/RedOS-Base.repo
+nano /etc/yum.repos.d/RedOS-Base.repo |#|#| Команда для редактирования файла репозитория "RedOS-Base.repo"
 
 Приведите файл репозитория к следующему виду(где 10.10.10.10 — это IP-Address локального сервера с репозиториями):
 
@@ -289,7 +289,7 @@ gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RED-SOFT
 enabled=1
 ------------
-nano /etc/yum.repos.d/RedOS-Updates.repo
+nano /etc/yum.repos.d/RedOS-Updates.repo |#|#| Команда для редактирования файла репозитория "RedOS-Updates.repo"
     
 Приведите файл репозитория к следующему виду(где 10.10.10.10 — это IP-Address локального сервера с репозиториями):
 
@@ -301,7 +301,7 @@ gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RED-SOFT
 enabled=1
 ------------
-nano /etc/yum.repos.d/RedOS-kernels6.repo
+nano /etc/yum.repos.d/RedOS-kernels6.repo |#|#| Команда для редактирования файла репозитория "RedOS-kernels6.repo"
 
 Приведите файл репозитория к следующему виду(где 10.10.10.10 — это IP-Address локального сервера с репозиториями):
 
@@ -313,7 +313,7 @@ enabled=1
 gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RED-SOFT
 ------------
-nano /etc/yum.repos.d/RedOS-kernels.repo
+nano /etc/yum.repos.d/RedOS-kernels.repo |#|#| Команда для редактирования файла репозитория "RedOS-kernels.repo"
 
 Приведите файл репозитория к следующему виду(где 10.10.10.10 — это IP-Address локального сервера с репозиториями):
 
