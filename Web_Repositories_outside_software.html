@@ -1,0 +1,339 @@
+<head>
+    <title>Repositories outside software</title>
+    <link rel="shortcut icon" href="./RAID.png" type="image/png">
+  </head>
+   <head>
+    <meta charset="utf-8">
+   </head>
+  <style>
+  .neonText1 {
+    color: #87CEFA;
+    text-shadow:
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1;
+  }
+  .neonText2 {
+    color: #00FF00;
+    text-shadow:
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400;
+  }
+  .neonText3 {
+    color: #ff0000;
+    text-shadow:
+        0 0 1px #640000,
+        0 0 1px #640000,
+        0 0 1px #640000,
+        0 0 1px #640000,
+        0 0 1px #640000,
+        0 0 1px #640000,
+        0 0 1px #640000,
+        0 0 1px #640000;
+  }
+  /* Additional styling */
+  body{
+      background-color: black;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+      color: #cfcfcf;
+  }
+  a {
+      text-decoration: none;
+  }
+  p {
+    text-indent: 1.5em;
+    font-family: monospace;
+    font-weight: 500;
+    white-space: pre;
+    line-height: 2;
+    letter-spacing: 1px;
+  }
+  </style>
+  <div class="container">
+  <p class="neonText1">
+    Создание локального репозиториев со сторонним ПО для ОС RedOS.
+    --------------------------------------------------------------------------------------------------------------------------------------------------------------
+    Все описанные ниже работы проводились на ОС <a class="neonText3">RedOS 8 Server</a>.
+    --------------------------------------------------------------------------------------------------------------------------------------------------------------
+    Все действия описанные ниже выполнялись под пользователем <a class="neonText3">root</a>.
+    --------------------------------------------------------------------------------------------------------------------------------------------------------------
+    В данной инструкции будет показано то, как создать локальные репозитории с ПО <a class="neonText2">R7-office</a>, <a class="neonText2">Yandex-browser</a> и <a class="neonText2">TrueConf</a>.
+    --------------------------------------------------------------------------------------------------------------------------------------------------------------
+    <a class="neonText3">10.10.10.10</a> — IP-Address сервера с локальными репозиториями.
+    --------------------------------------------------------------------------------------------------------------------------------------------------------------
+    <a class="neonText2">yum install -y NetworkManager-tui</a> |#|#| Установка пакета "nmtui" для настройки сети на АРМ/VM
+    ------------
+    Гайд по тому, как пользоваться инструментом nmtui, вы можете посмотреть в интернете.
+    ------------
+    <a class="neonText2">yum upgrade -y && reboot</a> |#|#| Команда для обновления ОС системы с последующим выполнением перезагрузки
+    ------------
+    <a class="neonText2">dnf install -y httpd createrepo yum-utils</a> |#|#| Команда для установки пакетов "httpd", "createrepo", "dnf-utils" и "cronie"
+    ------------
+    <a class="neonText2">rm -rf /etc/yum.repos.d/RedOS-Base.repo && rm -rf /etc/yum.repos.d/RedOS-Updates.repo</a> |#|#| Данной командой удаляем стандартные репозитории "RedOS-Base.repo" и "RedOS-Updates.repo"
+    ------------
+    <a class="neonText2">systemctl enable httpd --now</a> |#|#| Команда для добавления службы "httpd" в автозагрузку при запуска системы
+    ------------
+    <a class="neonText2">rm -rf /etc/httpd/conf.d/welcome.conf</a> |#|#| Команда для удаления конфигурации страницы по умолчанию веб-сервера
+    ------------
+    <a class="neonText2">nano /etc/httpd/conf/httpd.conf</a> |#|#| Команда для редактирования конфигурационного файла "httpd.conf"
+    
+    Внутри секции <a class="neonText3">&lt;Directory &quot;/var/www/html&quot;&gt;</a> отредактируйте строку <a class="neonText3">"Options Indexes FollowSymLinks"</a> к виду <a class="neonText3">"Options Indexes FollowSymLinks Includes"</a>
+    ------------
+    <a class="neonText2">systemctl restart httpd</a> |#|#| Команда для перезапуска службы "httpd"
+    ------------
+    <a class="neonText2">nano /etc/yum.repos.d/R7.repo</a> |#|#| Команда для создания конфигурационного файла репозитория "R7.repo"
+
+    Созданный конфигурационный файл приведите к следующему виду:
+    <a class="neonText3">
+    [r7-office]
+    name=Repositories for R7 Office
+    baseurl=https://desktop:gyxiLab84FByn7sCTd5JY@downloads.r7-office.ru/repository/r7-desktop-yum/
+    enabled=1
+    gpgcheck=1
+    gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-R7-OFFICE.public
+    sslverify=0</a>
+    ------------
+    <a class="neonText2">nano /etc/yum.repos.d/Yandex.repo</a> |#|#| Команда для создания конфигурационного файла репозитория "Yandex.repo"
+
+    Созданный конфигурационный файл приведите к следующему виду:
+    <a class="neonText3">
+    [yandex-browser]
+    name=Repositories for Yandex Browser
+    baseurl=https://repo.yandex.ru/yandex-browser/rpm/redos/$basearch/
+    enabled=1
+    gpgcheck=1
+    gpgkey=file:///etc/pki/rpm-gpg/YANDEX-BROWSER-KEY.GPG</a>
+    ------------
+    <a class="neonText2">mkdir /var/www/html/outside_software_redos</a> |#|#| Команда для создания каталога "/var/www/html/outside_software_redos"
+    ------------
+    <a class="neonText2">cd /var/www/html/outside_software_redos/</a> |#|#| Команда для перехода в каталог "/var/www/html/outside_software_redos/"
+    ------------
+    <a class="neonText2">reposync --repoid=r7-office --download-metadata --downloadcomps</a> |#|#| Команда для запуска процедуры создания зеркала репозитория "r7-office"
+    ------------
+    <a class="neonText2">reposync --repoid=r7-office --newest-only --downloadcomps</a> |#|#| Команда для запуска процедуры актуализации зеркала репозитория "r7-office". Если во внешнем
+    репозитории появятся новые пакеты, то данная команда скачает новые пакеты в ваш локальный репозиторий без удаления старых.
+    ------------
+    <a class="neonText2">createrepo -v /var/www/html/outside_software_redos/r7-office/</a> |#|#| Команда для создания репозитория "r7-office"
+    ------------
+    <a class="neonText2">cp /etc/pki/rpm-gpg/RPM-GPG-KEY-R7-OFFICE.public /var/www/html/outside_software_redos/r7-office/</a> |#|#| Команда для копирования "GPG-ключа" из каталога "/etc/pki/rpm-gpg/"
+    в каталог "/var/www/html/outside_software_redos/r7-office/"
+    ------------
+    <a class="neonText2">chmod 644 /var/www/html/outside_software_redos/r7-office/RPM-GPG-KEY-R7-OFFICE.public</a> |#|#| Команда для выдачи "644" прав ключу "RPM-GPG-KEY-R7-OFFICE.public"
+    ------------
+    <a class="neonText2">reposync --repoid=yandex-browser --download-metadata --downloadcomps</a> |#|#| Команда для запуска процедуры создания зеркала репозитория "yandex-browser"
+    ------------
+    <a class="neonText2">reposync --repoid=yandex-browser --newest-only --downloadcomps</a> |#|#| Команда для запуска процедуры актуализации зеркала репозитория "yandex-browser". Если во внешнем
+    репозитории появятся новые пакеты, то данная команда скачает новые пакеты в ваш локальный репозиторий без удаления старых.
+    ------------
+    <a class="neonText2">createrepo -v /var/www/html/outside_software_redos/yandex-browser/</a> |#|#| Команда для создания репозитория "yandex-browser"
+    ------------
+    <a class="neonText2">cp /etc/pki/rpm-gpg/YANDEX-BROWSER-KEY.GPG /var/www/html/outside_software/yandex-browser/</a> |#|#| Команда для копирования "GPG-ключа" из каталога "/etc/pki/rpm-gpg/"
+    в каталог "/var/www/html/outside_software_redos/yandex-browser/"
+    ------------
+    <a class="neonText2">chmod 644 /var/www/html/outside_software/yandex-browser/YANDEX-BROWSER-KEY.GPG</a> |#|#| Команда для выдачи "644" прав ключу "YANDEX-BROWSER-KEY.GPG"
+    ------------
+    <a class="neonText2">mkdir /var/www/html/outside_software_redos/trueconf</a> |#|#| Команда для создания каталога "/var/www/html/outside_software_redos/trueconf"
+    ------------
+    <a class="neonText2">cd /root/</a> |#|#| Команда для перехода в домашний каталог пользователя "root"
+    ------------
+    <a class="neonText2">nano trueconf.sh</a> |#|#| Команда для создания скрипта по копированию репозиториев "trueconf" с автозагрузкой новых пакетов и без удаления старых
+    
+    Созданный файл скрипта приведите к следующему виду:
+    <a class="neonText3">
+    #!/bin/bash
+
+    DOWNLOAD_DIR=&quot;/var/www/html/outside_software/trueconf&quot;
+    BASE_URL=&quot;https://mirror.trueconf.ru/redos&quot;
+    ARCH=&quot;x86_64&quot;
+    TMP_REPO=&quot;/tmp/trueconf.repo&quot;
+    GPG_KEY_URL=&quot;https://mirror.trueconf.ru/RPM-GPG-KEY-trueconf&quot;
+    GPG_KEY_LOCAL=&quot;/etc/pki/rpm-gpg/RPM-GPG-KEY-trueconf&quot;
+
+    # === GPG KEY ===
+    echo &quot;[🔐] Проверка GPG-ключа...&quot;
+    if [ ! -f &quot;$GPG_KEY_LOCAL&quot; ]; then
+        echo &quot;[→] GPG-ключ не найден, загружаем...&quot;
+        if curl -fsSL &quot;$GPG_KEY_URL&quot; -o &quot;$GPG_KEY_LOCAL&quot;; then
+            chmod 644 &quot;$GPG_KEY_LOCAL&quot;
+            echo &quot;[✓] GPG-ключ загружен: $GPG_KEY_LOCAL&quot;
+        else
+            echo &quot;[!] Ошибка загрузки GPG-ключа!&quot;
+            exit 1
+        fi
+    else
+        echo &quot;[✓] GPG-ключ уже существует.&quot;
+    fi
+
+    # === Получение списка доступных версий ===
+    echo &quot;[🔍] Получение списка доступных версий с $BASE_URL...&quot;
+    VERSIONS=$(curl -s &quot;$BASE_URL/&quot; | grep -oP &#39;(?&lt;=href=&quot;)[0-9]+(\.[0-9]+){1,2}(?=/&quot;)&#39; | sort -Vu)
+
+    # === Синхронизация по каждой версии ===
+    for VERSION in $VERSIONS; do
+        echo &quot;=== 🔄 Синхронизация версии $VERSION ===&quot;
+
+        REPOID=&quot;trueconf-$VERSION&quot;
+        REPO_URL=&quot;$BASE_URL/$VERSION/$ARCH/release&quot;
+
+        # Проверка наличия репозиторной метадаты
+        if curl --silent --head --fail &quot;$REPO_URL/repodata/repomd.xml&quot; &gt; /dev/null; then
+
+            # Создание временного .repo-файла
+            cat &gt; &quot;$TMP_REPO&quot; &lt;&lt;EOF
+    [$REPOID]
+    name=TrueConf $VERSION
+    baseurl=$REPO_URL
+    enabled=1
+    gpgcheck=1
+    gpgkey=file://$GPG_KEY_LOCAL
+    EOF
+
+            # Скачивание
+            echo &quot;[↓] Скачивание пакетов для $VERSION...&quot;
+            reposync \
+                --config=&quot;$TMP_REPO&quot; \
+               --repoid=&quot;$REPOID&quot; \
+                --download-path=&quot;$DOWNLOAD_DIR/$VERSION/$ARCH&quot; \
+                --download-metadata \
+                --downloadcomps
+
+        else
+            echo &quot;[⚠️] Пропущено: не найдено $REPO_URL/repodata/repomd.xml&quot;
+        fi
+    done
+
+    # Очистка временного .repo-файла
+    rm -f &quot;$TMP_REPO&quot;
+    echo &quot;[✅] Завершено!&quot;</a>
+    ------------
+    <a class="neonText2">chmod 777 /root/trueconf.sh</a> |#|#| Команда для выдачи "777" прав скрипту "trueconf.sh"
+    ------------
+    <a class="neonText2">nano r7.sh</a> |#|#| Команда для создания скрипта, который будет обновлять локальный репозиторий "r7-office"
+    
+    Созданный файл скрипта приведите к следующему виду:
+    <a class="neonText3">
+    #!/bin/bash
+
+    DESTDIR="/var/www/html/outside_software/"
+    REPOID="r7-office"
+
+    # Создание кеша метаданных (можно опустить, если не требуется)
+    dnf makecache
+
+    # Удаление старой директории .repodata, если она есть
+    if [[ -d "$DESTDIR/$REPOID/repodata" ]]; then
+       rm -rf "$DESTDIR/$REPOID/repodata"
+    fi
+
+    # Скачивание пакетов из репозитория r7-office
+    reposync --repo "$REPOID" --newest-only --downloadcomps -p "$DESTDIR"
+
+    # Генерация метаданных репозитория (без comps.xml)
+    createrepo --update "$DESTDIR/$REPOID"</a>
+    ------------
+    <a class="neonText2">chmod 777 /root/r7.sh</a> |#|#| Команда для выдачи "777" прав скрипту "r7.sh"
+    ------------
+    <a class="neonText2">nano yandex.sh</a> |#|#| Команда для создания скрипта, который будет обновлять локальный репозиторий "yandex-browser"
+
+    Созданный файл скрипта приведите к следующему виду:
+    <a class="neonText3">
+    #!/bin/bash
+
+    DESTDIR="/var/www/html/outside_software/"
+    REPOID="yandex-browser"
+
+    # Создание кеша метаданных (можно опустить, если не требуется)
+    dnf makecache
+
+    # Удаление старой директории .repodata, если она есть
+    if [[ -d "$DESTDIR/$REPOID/repodata" ]]; then
+        rm -rf "$DESTDIR/$REPOID/repodata"
+    fi
+
+    # Скачивание пакетов из репозитория yandex-browser
+    reposync --repo "$REPOID" --newest-only --downloadcomps -p "$DESTDIR"
+
+    # Генерация метаданных репозитория (без comps.xml)
+    createrepo --update "$DESTDIR/$REPOID"</a>
+    ------------
+    <a class="neonText2">chmod 777 /root/yandex.sh</a> |#|#| Команда для выдачи "777" прав скрипту "yandex.sh"
+    ------------
+    <a class="neonText2">crontab -e</a> |#|#| Команда для редактирования конфигурационного файла "crontab"
+
+    Приведите конфигурационный файл "crontab" к следующему виду:
+    <a class="neonText3">
+    30 1 * * 6 /root/R7.sh
+    30 2 * * 6 /root/trueconf.sh
+    30 3 * * 6 /root/yandex.sh</a>
+
+    Расшифровка на примере первой строки:
+    30 — минута (30-я минута);
+    1 — час (1 час ночи);
+    * — каждый день;
+    * — каждый месяц;
+    6 — каждый 6 день недели(каждую субботу);
+    /root/R7.sh — путь к скрипту, который будет запускаться.
+    --------------------------------------------------------------------------------------------------------------------------------------------------------------
+    Пример конфигурационного файла-репозитория, который создается на клиентской рабочей станции в каталоге "/etc/yum.repos.d/". В моём случае канфигурационный файл
+    будет называться "App_OS.repo"
+    ------------
+    <a class="neonText2">nano /etc/yum.repos.d/App_OS.repo</a> |#|#| Команда для создания файла-репозитория на клиентской рабочей станции
+
+    Созданный файл приведите к следующему виду:
+    <a class="neonText3">
+    [r7-office]
+    name=R7-Office_repo-local.permkrai.ru
+    baseurl=https://10.10.10.10/outside_software_redos/r7-office/
+    enabled=1
+    gpgcheck=1
+    gpgkey=https://10.10.10.10/outside_software_redos/r7-office/RPM-GPG-KEY-R7-OFFICE.public
+    sslverify=0
+
+    [trueconf_8.0]
+    name=TrueConf-8.0_repo-local.permkrai.ru
+    baseurl=https://10.10.10.10/outside_software_redos/trueconf/8.0/x86_64/trueconf-8.0/
+    enabled=1
+    gpgcheck=1
+    gpgkey=https://10.10.10.10/outside_software_redos/trueconf/RPM-GPG-KEY-trueconf
+
+    [yandex-browser]
+    name=Yandex-Browser_repo-local.permkrai.ru
+    baseurl=https://10.10.10.10/outside_software_redos/yandex-browser/
+    enabled=1
+    gpgcheck=1
+    gpgkey=https://10.10.10.10/outside_software_redos/yandex-browser/YANDEX-BROWSER-KEY.GPG</a>
+    ------------
+    <a class="neonText2">Примечания к выше прописанной конфигурации:
+    1. http или https зависит от вашей публикации;
+    2. У ПО TrueConf на 28.07.2025 имеется 7 репозиториев для ОС RedOS(8.0, 7.3.5, 7.3.4, 7.3.3, 7.3.2, 7.3.1, 7.2).
+    В перечисленных ниже строках указывайте нужную вам версию ОС RedOS:
+    [trueconf_8.0]
+    name=TrueConf-8.0_repo-local.permkrai.ru
+    baseurl=https://10.10.10.10/outside_software_redos/trueconf/8.0/x86_64/trueconf-8.0/</a>
+    ------------
+    <a class="neonText3">Важный момент! Перед тем как подключить локальные репозитории, убедитесь в том, что у вас не предустановленны сторонние репозитории "r7-release*" и
+    "yandex-browser-release*". Начилие данных репозиториев можно проверить командой "ls -sla /etc/distro.repos.d/". Если сторонние репозитории пердустановлены, то
+    выполните их удаление командой "dnf remove -y r7-release* yandex-browser-release*". 
+    Удаление репозиториев важно, т.к. если этого не сделать, то при установке ПО из локальных репозиториев у вас произойдет конфликт "GPG-ключей".</a>
+    ------------
+    <a class="neonText2">dnf install -y r7-office yandex-browser-stable trueconf</a> |#|#| Команда для установки ПО "r7-office", "yandex-browser-stable" и "trueconf"
+    --------------------------------------------------------------------------------------------------------------------------------------------------------------
+    На этом инструкция завершена! Всем спасибо за внимание!
+  </p>
+  </div>
