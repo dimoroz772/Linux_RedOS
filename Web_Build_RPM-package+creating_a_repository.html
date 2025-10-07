@@ -1,0 +1,226 @@
+<head>
+    <title>Build RPM-package + creating a repository</title>
+    <link rel="shortcut icon" href="./cc.png" type="image/png">
+  </head>
+   <head>
+    <meta charset="utf-8">
+   </head>
+  <style>
+  .neonText1 {
+    color: #87CEFA;
+    text-shadow:
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1;
+  }
+  .neonText2 {
+    color: #00FF00;
+    text-shadow:
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400;
+  }
+  .neonText3 {
+    color: #ff0000;
+    text-shadow:
+        0 0 1px #640000,
+        0 0 1px #640000,
+        0 0 1px #640000,
+        0 0 1px #640000,
+        0 0 1px #640000,
+        0 0 1px #640000,
+        0 0 1px #640000,
+        0 0 1px #640000;
+  }
+  .neonText4 {
+    color: #ffffff;
+    text-shadow:
+        0 0 1px #c7c7c7,
+        0 0 1px #c7c7c7,
+        0 0 1px #c7c7c7,
+        0 0 1px #c7c7c7,
+        0 0 1px #c7c7c7,
+        0 0 1px #c7c7c7,
+        0 0 1px #c7c7c7,
+        0 0 1px #c7c7c7;
+  }
+  /* Additional styling */
+  body{
+      background-color: black;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+      max-width: 2000px;
+      margin: 0 auto;
+      padding: 20px;
+      color: #cfcfcf;
+  }
+  a {
+      text-decoration: none;
+  }
+  p {
+    text-indent: 1.5em;
+    font-family: monospace;
+    font-weight: 500;
+    white-space: pre;
+    line-height: 2;
+    letter-spacing: 1px;
+  }
+  </style>
+  <div class="container">
+  <p class="neonText1">
+    <a class="neonText4">Создание RPM-пакета на ОС RedOS 8.0.2 с установкой и удалением сторонних шрифтов для ОС Linux RedOS 8.0.~ и 7.3.~.</a>
+    --------------------------------------------------------------------------------------------------------------------------------------------------------------
+    Все описанные ниже действия выполнялись под пользователем root
+    --------------------------------------------------------------------------------------------------------------------------------------------------------------
+    <a class="neonText2">ip a</a> |#|#| Просмотрите IP-адресацию на сетевых интерфейсах
+    ------------
+    <a class="neonText2">nmtui</a> |#|#| Настройте статическую адресацию на сетевых интерфейсах
+    ------------
+    <a class="neonText2">dnf upgrade -y && reboot</a> |#|#| Выполните обновление ОС, а после чего перезагрузку
+    ------------
+    <a class="neonText2">dnf install -y rpm-build</a> |#|#| Установите в ОС пакет "rpm-build"
+    ------------
+    <a class="neonText2">mkdir /root/rpmbuild/</a> |#|#| Создайте каталог "/root/rpmbuild/"
+    ------------
+    <a class="neonText2">cd /root/rpmbuild/</a> |#|#| Перейдите в каталог "/root/rpmbuild/"
+    ------------
+    <a class="neonText2">mkdir -p /root/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}</a> |#|#| Создайте в каталоге "/root/rpmbuild/" ещё пять подкаталогов "BUILD,RPMS,SOURCES,SPECS,SRPMS"
+    ------------
+    <a class="neonText3">Следующим шагом скопируйте все те шрифты, которые вы хотите получить в RPM-пакете в каталог "SOURCES" любым удобным для вас способом.</a>
+    ------------
+    <a class="neonText2">cd /root/rpmbuild/SOURCES/</a> |#|#| Перейдите в каталог "/root/rpmbuild/SOURCES/"
+    ------------
+    <a class="neonText2">tar czf fonts.tar.gz *.ttf *.otf *.ttc *.TTF *.OTF *.TTC</a> |#|#| Соберите все шрифты в один архив под названием "fonts.tar.gz"
+    <a class="neonText3">Обратите особое внимание на форматирование именованного файла! Если наименование с расширением сделано капсом, то и расширение при формировании архива нужно указывать тоже с капсом.</a>
+    ------------
+    <a class="neonText3">После создания архива под названием "fonts.tar.gz", в каталоге "/root/rpmbuild/SOURCES/" удалите все шрифты и оставьте лишь один файл "fonts.tar.gz".</a>
+    ------------
+    <a class="neonText2">nano /root/rpmbuild/SPECS/fonts.spec</a>
+    |#|#|
+    Приведите конфигурационный файл "fonts.spec" к следующему виду:
+
+    Name:           FontsWO
+    Version:        1.1
+    Release:        2%{?dist}
+    Summary:        FontsWO - Fonts used in operating systems Windows 10-11 and Microsoft Office
+
+    License:        OFL
+    URL:            https://your.site.ru/
+    Source0:        fonts.tar.gz
+
+    BuildArch:	noarch
+
+    %description
+    This rpm-package consists of the following fonts: Absalom_.ttf, AGENCYB.TTF, AGENCYR.TTF, ALGER.TTF, Alibi___.ttf, ANTQUAB.TTF, ANTQUABI.TTF, ANTQUAI.TTF, arial.ttf, arialbd.ttf, arialbi.ttf, ariali.ttf, ARIALN.TTF, ARIALNB.TTF, ARIALNBI.TTF, ARIALNI.TTF, ariblk.ttf, ARLRDBD.TTF, bahnschrift.ttf, BASKVILL.TTF, Batavia_.ttf, BAUHS93.TTF, BELL.TTF, BELLB.TTF, BELLI.TTF, BERNHC.TTF, BKANT.TTF, BLADRMF_.TTF, BOD_B.TTF, BOD_BI.TTF, BOD_BLAI.TTF, BOD_BLAR.TTF, BOD_CB.TTF, BOD_CBI.TTF, BOD_CI.TTF, BOD_CR.TTF, BOD_I.TTF, BOD_PSTC.TTF, BOD_R.TTF, BOOKOS.TTF, BOOKOSB.TTF, BOOKOSBI.TTF, BOOKOSI.TTF, BRADHITC.TTF, BRITANIC.TTF, BRLNSB.TTF, BRLNSDB.TTF, BRLNSR.TTF, BROADW.TTF, BRUSHSCI.TTF, BSSYM7.TTF, calibri.ttf, calibrib.ttf, calibrii.ttf, calibril.ttf, calibrili.ttf, calibriz.ttf, CALIFB.TTF, CALIFI.TTF, CALIFR.TTF, CALIST.TTF, CALISTB.TTF, CALISTBI.TTF, CALISTI.TTF, cambria.ttc, cambriab.ttf, cambriai.ttf, cambriaz.ttf, Candara.ttf, Candarab.ttf, Candarai.ttf, Candaral.ttf, Candarali.ttf, Candaraz.ttf, Candrb__.ttf, Candrbb_.ttf, Candrbc_.ttf, Candrbcb.ttf, Candrbcl.ttf, Candrbl_.ttf, casmira_.ttf, CASTELAR.TTF, CENSCBK.TTF, CENTAUR.TTF, CENTURY.TTF, CHILLER.TTF, COLONNA.TTF, comic.ttf, comicbd.ttf, comici.ttf, comicz.ttf, Concib__.ttf, Concibb_.ttf, Concibw_.ttf, consola.ttf, consolab.ttf, consolai.ttf, consolaz.ttf, constan.ttf, constanb.ttf, constani.ttf, constanz.ttf, COOPBL.TTF, COPRGTB.TTF, COPRGTL.TTF, corbel.ttf, corbelb.ttf, corbeli.ttf, corbell.ttf, corbelli.ttf, corbelz.ttf, cormorant.ttf, cormorant_bold.ttf, cormorant_bold_italic.ttf, cormorant_italic.ttf, cour.ttf, courbd.ttf, courbi.ttf, couri.ttf, CURLZ___.TTF, DUBAI-BOLD.TTF, DUBAI-LIGHT.TTF, DUBAI-MEDIUM.TTF, DUBAI-REGULAR.TTF, ebrima.ttf, ebrimabd.ttf, Elegance.ttf, ELEPHNT.TTF, ELEPHNTI.TTF, Ellis___.ttf, ENGR.TTF, ERASBD.TTF, ERASDEMI.TTF, ERASLGHT.TTF, ERASMD.TTF, Excess__.ttf, FELIXTI.TTF, FORTE.TTF, FRABK.TTF, FRABKIT.TTF, FRADM.TTF, FRADMCN.TTF, FRADMIT.TTF, FRAHV.TTF, FRAHVIT.TTF, framd.ttf, FRAMDCN.TTF, framdit.ttf, FREESCPT.TTF, FRSCRIPT.TTF, FTLTLT.TTF, Gabriola.ttf, gadugi.ttf, gadugib.ttf, Galeb___.ttf, GARA.TTF, GARABD.TTF, GARAIT.TTF, Genuine_.ttf, georgia.ttf, georgiab.ttf, georgiai.ttf, georgiaz.ttf, GIGI.TTF, GIL_____.TTF, GILB____.TTF, GILBI___.TTF, GILC____.TTF, GILI____.TTF, GILLUBCD.TTF, GILSANUB.TTF, GLECB.TTF, GLSNECB.TTF, GOTHIC.TTF, GOTHICB.TTF, GOTHICBI.TTF, GOTHICI.TTF, GOUDOS.TTF, GOUDOSB.TTF, GOUDOSI.TTF, GOUDYSTO.TTF, Grilbwbl.ttf, Grilcbc_.ttf, Grilcbcb.ttf, Grilcbto.ttf, HARLOWSI.TTF, HARNGTON.TTF, HATTEN.TTF, Helte___.ttf, Herman__.ttf, himalaya.ttf, holomdl2.ttf, Hotmb___.ttf, Hotmbpo___.ttf, HTOWERT.TTF, HTOWERTI.TTF, img baby.ttf, img extreme.ttf, img hearts.ttf, img seasons.ttf, img symbols.ttf, img travel.ttf, impact.ttf, IMPRISHA.TTF, INFROMAN.TTF, Inkfree.ttf, Isabelle.ttf, ITCBLKAD.TTF, ITCEDSCR.TTF, ITCKRIST.TTF, javatext.ttf, Joan____.ttf, JOKERMAN.TTF, JUICE___.TTF, Justice_.ttf, KUNSTLER.TTF, l_10646.ttf, LATINWD.TTF, LBRITE.TTF, LBRITED.TTF, LBRITEDI.TTF, LBRITEI.TTF, LCALLIG.TTF, LeelaUIb.ttf, LEELAWAD.TTF, LEELAWDB.TTF, LeelawUI.ttf, LeelUIsl.ttf, LFAX.TTF, LFAXD.TTF, LFAXDI.TTF, LFAXI.TTF, LHANDW.TTF, LSANS.TTF, LSANSD.TTF, LSANSDI.TTF, LSANSI.TTF, LTYPE.TTF, LTYPEB.TTF, LTYPEBO.TTF, LTYPEO.TTF, lucon.ttf, MAGNETOB.TTF, MAIAN.TTF, malgun.ttf, malgunbd.ttf, malgunsl.ttf, Mandela_.ttf, Marqbb__.ttf, Marqbl__.ttf, Marqblnb.ttf, Matte___.ttf, MATURASC.TTF, Microdot.ttf, micross.ttf, mingliub.ttc, MISTRAL.TTF, mmrtext.ttf, mmrtextb.ttf, MOD20.TTF, monbaiti.ttf, Montserrat-Black.ttf, Montserrat-BlackItalic.ttf, Montserrat-Bold.ttf, Montserrat-BoldItalic.ttf, Montserrat-ExtraBold.ttf, Montserrat-ExtraBoldItalic.ttf, Montserrat-ExtraLight.ttf, Montserrat-ExtraLightItalic.ttf, Montserrat-Italic.ttf, Montserrat-Light.ttf, Montserrat-LightItalic.ttf, Montserrat-Medium.ttf, Montserrat-MediumItalic.ttf, Montserrat-Regular.ttf, Montserrat-SemiBold.ttf, Montserrat-SemiBoldItalic.ttf, Montserrat-Thin.ttf, Montserrat-ThinItalic.ttf, msgothic.ttc, msjh.ttc, msjhbd.ttc, msjhl.ttc, MSUIGHUB.TTF, MSUIGHUR.TTF, msyh.ttc, msyhbd.ttc, msyhl.ttc, msyi.ttf, MTCORSVA.TTF, MTEXTRA.TTF, mvboli.ttf, Natur___.ttf, Neolith_.ttf, NIAGENG.TTF, NIAGSOL.TTF, Nighb___.ttf, Nighbb__.ttf, Nighbc__.ttf, Nighbuc_.ttf, Nirmala.ttc, Nirmala.ttf, NirmalaB.ttf, NirmalaS.ttf, ntailu.ttf, ntailub.ttf, OCRAEXT.TTF, OLDENGL.TTF, ONYX.TTF, Openc___.ttf, OpenSymbol.ttf, OUTLOOK.TTF, pala.ttf, palab.ttf, palabi.ttf, palai.ttf, PALSCRI.TTF, PAPYRUS.TTF, PARCHM.TTF, PER_____.TTF, PERB____.TTF, PERBI___.TTF, PERI____.TTF, PermianSansTypeface.otf, PermianSansTypeface-Bold.otf, PermianSansTypeface-Italic.otf, PermianSerifTypeface.otf, PermianSerifTypeface-Bold.otf, PermianSerifTypeface-Italic.otf, PermianSlabSerifTypeface.otf, PermianSlabSerifTypeface-Bold.otf, PermianSlabSerifTypeface-Italic.otf, PERTIBD.TTF, PERTILI.TTF, phagspa.ttf, phagspab.ttf, PLAYBILL.TTF, POORICH.TTF, Pretext_.ttf, PRISTINA.TTF, PT Astra Sans_Bold.ttf, PT Astra Sans_Bold Italic.ttf, PT Astra Sans_Italic.ttf, PT Astra Sans_Regular.ttf, PT Astra Serif_Bold.ttf, PT Astra Serif_Bold Italic.ttf, PT Astra Serif_Italic.ttf, PT Astra Serif_Regular.ttf, pt sans.ttf, pt sans_bold.ttf, pt sans_bold_italic.ttf, pt sans_italic.ttf, pt serif.ttf, pt serif_bold.ttf, pt serif_bold_italic.ttf, pt serif_italic.ttf, Puppy___.ttf, Radagund.ttf, RAGE.TTF, RAVIE.TTF, Realv___.ttf, REFSAN.TTF, REFSPCL.TTF, ROCC____.TTF, ROCCB___.TTF, ROCK.TTF, ROCKB.TTF, ROCKBI.TTF, ROCKEB.TTF, ROCKI.TTF, SansSerifCollection.ttf, SCHLBKB.TTF, SCHLBKBI.TTF, SCHLBKI.TTF, SCRIPTBL.TTF, segmdl2.ttf, SegoeIcons.ttf, segoepr.ttf, segoeprb.ttf, segoesc.ttf, segoescb.ttf, segoeui.ttf, segoeuib.ttf, segoeuii.ttf, segoeuil.ttf, segoeuisl.ttf, segoeuiz.ttf, seguibl.ttf, seguibli.ttf, seguiemj.ttf, seguihis.ttf, seguili.ttf, seguisb.ttf, seguisbi.ttf, seguisli.ttf, seguisym.ttf, SegUIVar.ttf, Shelman_.ttf, SHOWG.TTF, simsun.ttc, simsunb.ttf, SimsunExtG.ttf, Sitka.ttc, SitkaB.ttc, SitkaI.ttc, SitkaVF.ttf, SitkaVF-Italic.ttf, SitkaZ.ttc, SNAP____.TTF, Sneab___.ttf, Sneabc__.ttf, Sneabo__.ttf, Sneabs__.ttf, Sneabso_.ttf, Starb___.ttf, Starbb__.ttf, Starbo__.ttf, STENCIL.TTF, sylfaen.ttf, symbol.ttf, tahoma.ttf, tahomabd.ttf, taile.ttf, taileb.ttf, TCB_____.TTF, TCBI____.TTF, TCCB____.TTF, TCCEB.TTF, TCCM____.TTF, TCM_____.TTF, TCMI____.TTF, TEMPSITC.TTF, times.ttf, timesbd.ttf, timesbi.ttf, timesi.ttf, trebuc.ttf, trebucbd.ttf, trebucbi.ttf, trebucit.ttf, Trendy__.ttf, tt0562m_.ttf, tt0756m_.ttf, tt0840m_.ttf, tt1247m_.ttf, tt1248m_.ttf, tt1254m_.ttf, tt2001m_.ttf, tt2002m_.ttf, tt2003m_.ttf, tt2004m_.ttf, tt2066m_.ttf, TT0228M_.TTF, TT0282M_.TTF, TT0283M_.TTF, TT0284M_.TTF, TT0351M_.TTF, TT0416M_.TTF, TT0467M_.TTF, TT0468M_.TTF, TT0469M_.TTF, TT0470M_.TTF, TT0846M_.TTF, TT1018M_.TTF, TT1022M_.TTF, TT1023M_.TTF, TT1024M_.TTF, TT1025M_.TTF, TT1046M_.TTF, verdana.ttf, verdanab.ttf, verdanai.ttf, verdanaz.ttf, VINERITC.TTF, VIVALDII.TTF, VLADIMIR.TTF, webdings.ttf, wingding.ttf, WINGDNG2.TTF, WINGDNG3.TTF, XO_Caliburn_BI.ttf, XO_Caliburn_Bu.ttf, XO_Caliburn_Ni.ttf, XO_Caliburn_Nu.ttf, XO_Courser_BI.ttf, XO_Courser_Bu.ttf, XO_Courser_NI.ttf, XO_Courser_Nu.ttf, XO_Oriel_Bi.ttf, XO_Oriel_Bu.ttf, XO_Oriel_CN_Bi.ttf, XO_Oriel_CN_Bu.ttf, XO_Oriel_CN_Ni.ttf, XO_Oriel_CN_Nu.ttf, XO_Oriel_Ni.ttf, XO_Oriel_Nu.ttf, XO Symbol.ttf, XO_Tahion_Bu.ttf, XO_Tahion_Nu.ttf, XO_Thames_BI.ttf, XO_Thames_Bu.ttf, XO_Thames_Ni.ttf, XO_Thames_Nu.ttf, XO Windy.ttf, YuGothB.ttc, YuGothL.ttc, YuGothM.ttc, YuGothR.ttc, Golos Text_Black.ttf, Golos Text_Bold.ttf, Golos Text_DemiBold.ttf, Golos Text_Medium.ttf, Golos Text_Regular.ttf, Golos Text_VF.ttf, Golos UI_Bold.ttf, Golos UI_Medium.ttf, Golos UI_Regular.ttf, Golos UI_VF.ttf, OpenSans-Bold.ttf, OpenSans-BoldItalic.ttf, OpenSans-ExtraBold.ttf, OpenSans-ExtraBoldItalic.ttf, OpenSans-Italic.ttf, OpenSans-Light.ttf, OpenSans-LightItalic.ttf, OpenSans-Regular.ttf, OpenSans-Semibold.ttf, OpenSans-SemiboldItalic.ttf, Oswald-Bold.ttf, Oswald-ExtraLight.ttf, Oswald-Light.ttf, Oswald-Medium.ttf, Oswald-Regular.ttf, Oswald-SemiBold.ttf, Oswald-VariableFont_wght.ttf, Roboto-Black.ttf, Roboto-BlackItalic.ttf, Roboto-Bold.ttf, Roboto-BoldItalic.ttf, RobotoCondensed-Bold.ttf, RobotoCondensed-BoldItalic.ttf, RobotoCondensed-Italic.ttf, RobotoCondensed-Light.ttf, RobotoCondensed-LightItalic.ttf, RobotoCondensed-Regular.ttf, Roboto-Italic.ttf, Roboto-Light.ttf, Roboto-LightItalic.ttf, Roboto-Medium.ttf, Roboto-MediumItalic.ttf, Roboto-Regular.ttf, RobotoSlab-Bold.ttf, RobotoSlab-Light.ttf, RobotoSlab-Regular.ttf, RobotoSlab-Thin.ttf, Roboto-Thin.ttf, Roboto-ThinItalic.ttf.
+
+    %prep
+    %setup -q -c -T
+    tar -xzf %{SOURCE0}
+
+    %build
+    # No build step needed for fonts
+
+    %install
+    rm -rf %{buildroot}
+    mkdir -p %{buildroot}/usr/share/fonts/custom
+    cp -a *.ttf *.otf *.ttc *.TTF *.OTF *.TTC %{buildroot}/usr/share/fonts/custom/ || true
+    chmod -R 755 %{buildroot}/usr/share/fonts/custom
+    chown -R root:root %{buildroot}/usr/share/fonts/custom
+
+    %post
+    fc-cache -fv >/dev/null 2>&1 || true
+
+    %postun
+    fc-cache -fv >/dev/null 2>&1 || true
+
+    %files
+    %dir /usr/share/fonts/custom
+    /usr/share/fonts/custom/*
+
+    %changelog
+    * Wed Oct 02 2025 username &lt;username@gmail.com&gt; - 1.1-2
+    - Initial package with 500+ fonts
+    ------------
+    <a class="neonText2">cd /root/rpmbuild/SPECS/</a> |#|#| Перейдите в каталог "/root/rpmbuild/SPECS/"
+    ------------
+    <a class="neonText2">rpmbuild -ba fonts.spec</a> |#|#| Соберите RPM-пакет
+    ------------
+    <a class="neonText3">Готовый пакет RPM будет находиться в каталоге "/root/rpmbuild/RPMS/noarch/" под названием "</a><a class="neonText2">FontsWO-1.1-2.red80.noarch.rpm<a class="neonText3">", а SRPM (исходники) будут находиться в каталоге "/root/rpmbuild/SRPMS/" под названием "</a><a class="neonText2">FontsWO-1.1-2.red80.src.rpm</a><a class="neonText3">".</a>
+    ------------
+    <a class="neonText2">rpm -ivh /root/rpmbuild/RPMS/noarch/FontsWO-1.1-2.red80.noarch.rpm </a> |#|#| Установка пакета "FontsWO-1.1-2.red80.noarch.rpm" с подробным выводом и выводом прогрессом в виде хэшей
+    --------------------------------------------------------------------------------------------------------------------------------------------------------------
+    <a class="neonText4">Создание собственного репозитория на ОС RedOS 8.0.2.</a>
+    --------------------------------------------------------------------------------------------------------------------------------------------------------------
+    <a class="neonText2">dnf install -y httpd createrepo dnf-utils cronie</a> |#|#| Установите необходимые пакеты с дополнительными зависимостями
+    ------------
+    <a class="neonText2">rm -rf /etc/httpd/conf.d/welcome.conf</a> |#|#| Удалите конфигурационный файл Apache HTTP Server, который по умолчанию отвечает за страницу приветствия Apache (Welcome Page)
+    ------------
+    <a class="neonText2">systemctl enable httpd --now</a> |#|#| Добавьте службу "httpd" в автозапуск
+    ------------
+    <a class="neonText2">nano /etc/httpd/conf/httpd.conf</a>
+    |#|#|
+    Внутри секции <a class="neonText3">&lt;Directory "/var/www/html"&gt;</a> отредактируйте строку <a class="neonText3">"Options Indexes FollowSymLinks"</a> к виду <a class="neonText3">"Options Indexes FollowSymLinks Includes"</a>
+    ------------
+    <a class="neonText2">systemctl restart httpd</a> |#|#| Перезапустите службу "httpd"
+    ------------
+    <a class="neonText2">mkdir /var/www/html/outside_software_redos/</a> |#|#| Создайте каталог "/var/www/html/outside_software_redos/"
+    ------------
+    <a class="neonText2">mkdir /var/www/html/outside_software_redos/fonts</a> |#|#| Создайте каталог "/var/www/html/outside_software_redos/fonts"
+    ------------
+    <a class="neonText2">mv /root/Fonts_WinOff-1.0-1.red80.noarch.rpm /var/www/html/outside_software_redos/fonts/</a> |#|#| Переместите созданный ранее RPM-пакет в каталог "/var/www/html/outside_software_redos/fonts/"
+    ------------
+    <a class="neonText2">chmod 777 -R /var/www/html/outside_software_redos/</a> |#|#| Выдайте полные права каталогу "/var/www/html/outside_software_redos/", а также всему в нем содержимому.
+    ------------
+    <a class="neonText2">createrepo /var/www/html/outside_software_redos/fonts</a> |#|#| Создайте репозиторий "/var/www/html/outside_software_redos/fonts"
+    ------------
+    <a class="neonText2">nano /etc/selinux/config</a>
+    |#|#|
+    В кофигурационном файле <a class="neonText3">"config"</a> замените текст <a class="neonText3">"SELINUX=enforcing"</a> на <a class="neonText3">"SELINUX=disabled"</a>.
+    ------------
+    <a class="neonText2">setenforce 0</a> |#|#| Переведите SELinux в режим "permissive"
+    --------------------------------------------------------------------------------------------------------------------------------------------------------------
+    <a class="neonText4">Подключение на ВМ собственного репозитория, на ОС RedOS 8.0.2.</a>
+    --------------------------------------------------------------------------------------------------------------------------------------------------------------
+    <a class="neonText2">nano /etc/yum.repos.d/Fonts.repo</a>
+    |#|#|
+    Создайте конфигурационный файл "Fonts.repo" и приведите к следующему виду:
+
+    <a class="neonText2">[Fonts]
+    name=Fonts
+    baseurl=https://ip-address-vm/outside_software_redos/fonts/
+    enabled=1
+    gpgcheck=0</a>
+    ------------
+    <a class="neonText2">dnf update && dnf install -y Fonts_WinOff*</a> |#|#| Обновите репозитории подключенные в ВМ и установите пакет "Fonts_WO*"
+    --------------------------------------------------------------------------------------------------------------------------------------------------------------
+    На этом инструкция завершена! Всем спасибо за внимание!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </p>
+  </div>
