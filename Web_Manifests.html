@@ -1,0 +1,640 @@
+<head>
+    <title>Manifests</title>
+    <link rel="shortcut icon" href="./logo.png" type="image/png">
+  </head>
+   <head>
+    <meta charset="utf-8">
+   </head>
+  <style>
+  .neonText1 {
+    color: #87CEFA;
+    text-shadow:
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1,
+        0 0 1px #4169E1;
+  }
+  .neonText2 {
+    color: #00FF00;
+    text-shadow:
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400,
+        0 0 1px #006400;
+  }
+  .neonText3 {
+    color: #ffffff;
+    text-shadow:
+        0 0 1px #575757,
+        0 0 1px #575757,
+        0 0 1px #575757,
+        0 0 1px #575757,
+        0 0 1px #575757,
+        0 0 1px #575757,
+        0 0 1px #575757,
+        0 0 1px #575757;
+  }
+  /* Additional styling */
+  body{
+      background-color: black;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+      color: #cfcfcf;
+  }
+  a {
+      text-decoration: none;
+  }
+  p {
+    text-indent: 1.5em;
+    font-family: monospace;
+    font-weight: 500;
+    white-space: pre;
+    line-height: 2;
+    letter-spacing: 1px;
+  }
+  </style>
+  <div class="container">
+  <p class="neonText1">
+В данном гайде перечислены манифесты которые использовались для администрирования ОС RedOS 8.0.2 и RedOS 7.3.6.
+Используемые средства для администрирования: Foreman + Puppet.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+Главное — правильно распределить порядок выполнения манифестов, иначе есть риск сломать корректную работу настраиваемых служб в ОС.
+Я спланировал порядок выполнения манифестов с помощью латинского алфавита.Для установки ПО на ОС я под каждое писал отдельный манифест, т.к. манифесты я
+разбивал на группы для определенной версии ОС RedOS.
+Также, наименования каталогов после "/etc/puppetlabs/code/environments/production/modules/" должны совпадать с наименованием класса в нутри конфигурационного
+файла "init.pp".
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">a1_ssh_key</a>
+------------
+<a class="neonText2">class a1_ssh_key {
+  $key_content = 'ssh-ed25519 AAAAA3AaaA1aAAA1AAA5AAAAAAaaaaaaaaa3AaaaaAAAaa+A6AAA4Aaaa7AaAAAaaAa8 root@redos-pc'
+
+  file { '/root/.ssh/authorized_keys':
+    ensure  => file,
+    content => $key_content,
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0600',
+    require => File['/root/.ssh'],
+  }
+
+  file { '/root/.ssh':
+    ensure => directory,
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0700',
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">b1_sshd_config</a>
+------------
+<a class="neonText2">class b1_sshd_config {
+  # Execute configuration changes unless PasswordAuthentication is already set to "no"
+  exec { 'uncomment_PubkeyAuthentication':
+    command => "sed -i -r 's/^#?\\s*PubkeyAuthentication\\s+.*/PubkeyAuthentication yes/' /etc/ssh/sshd_config",
+    onlyif  => "grep -Eq '^#\\s*PubkeyAuthentication|^PubkeyAuthentication(\\s+no|\\s+NO)' /etc/ssh/sshd_config",
+    unless  => "grep -q '^PasswordAuthentication no$' /etc/ssh/sshd_config",
+    path    => ['/bin', '/usr/bin'],
+  }
+
+  exec { 'uncomment_PasswordAuthentication':
+    command => "sed -i -r 's/^#?\\s*PasswordAuthentication\\s+.*/PasswordAuthentication yes/' /etc/ssh/sshd_config",
+    onlyif  => "grep -Eq '^#\\s*PasswordAuthentication|^PasswordAuthentication(\\s+no|\\s+NO)' /etc/ssh/sshd_config",
+    unless  => "grep -q '^PasswordAuthentication no$' /etc/ssh/sshd_config",
+    path    => ['/bin', '/usr/bin'],
+    require => Exec['uncomment_PubkeyAuthentication'],
+  }
+
+  exec { 'disable_PasswordAuthentication':
+    command => "sed -i 's/^PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config",
+    onlyif  => "grep -q '^PasswordAuthentication yes' /etc/ssh/sshd_config",
+    unless  => "grep -q '^PasswordAuthentication no$' /etc/ssh/sshd_config",
+    path    => ['/bin', '/usr/bin'],
+    require => Exec['uncomment_PasswordAuthentication'],
+  }
+
+  # Verify PubkeyAuthentication is set to yes
+  exec { 'verify_PubkeyAuthentication_yes':
+    command => "sed -i -r 's/^#?\\s*PubkeyAuthentication\\s+.*/PubkeyAuthentication yes/' /etc/ssh/sshd_config",
+    onlyif  => "grep -Eq '^#\\s*PubkeyAuthentication|^PubkeyAuthentication(\\s+no|\\s+NO)' /etc/ssh/sshd_config",
+    unless  => "grep -q '^PubkeyAuthentication yes$' /etc/ssh/sshd_config",
+    path    => ['/bin', '/usr/bin'],
+    require => Exec['disable_PasswordAuthentication'],
+  }
+
+  # Service restart at the end
+  exec { 'restart_sshd':
+    command => 'systemctl restart sshd',
+    path    => ['/bin', '/usr/bin', '/usr/sbin'],
+    onlyif  => "grep -q '^PasswordAuthentication yes' /etc/ssh/sshd_config",
+    require => Exec['verify_PubkeyAuthentication_yes'],
+  }
+
+  service { 'sshd':
+    ensure  => running,
+    enable  => true,
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">c1_root_pass</a>
+------------
+<a class="neonText2">class c1_root_pass {
+  # Открытый пароль для установки
+  $new_password = 'P@ssw0rD'
+
+  # Префикс хэша yescrypt из /etc/shadow — первые ~29 символов, уникально идентифицирующие пароль
+  $expected_hash_prefix = '$6$aaaaaaAaa$aaAAAaaaAAaaAaAAA'
+
+  exec { 'set_root_password':
+    command => "echo '${new_password}' | passwd --stdin root",
+    unless  => "grep '^root:' /etc/shadow | cut -d: -f2 | grep -q '^${expected_hash_prefix}'",
+    path    => ['/bin', '/usr/bin'],
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">d1_create_admin</a>
+------------
+<a class="neonText2">class d1_create_admin {
+  user { 'admin':
+    ensure     => present,
+    managehome => true,
+    shell      => '/bin/bash',
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">e1_admin_pass</a>
+------------
+<a class="neonText2">class e1_admin_pass {
+  # Открытый пароль для установки
+  $new_password = 'P@ssw0rD'
+
+  # Префикс хэша yescrypt из /etc/shadow — первые ~29 символов, уникально идентифицирующие пароль
+  $expected_hash_prefix = '$6$aaaaaaAaa$aaAAAaaaAAaaAaAAA'
+
+  exec { 'set_admin_password':
+    command => "echo '${new_password}' | passwd --stdin admin",
+    unless  => "grep '^admin:' /etc/shadow | cut -d: -f2 | grep -q '^${expected_hash_prefix}'",
+    path    => ['/bin', '/usr/bin'],
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">f1_adm_group</a>
+------------
+<a class="neonText2">class f1_adm_group {
+  file { '/etc/sudoers.d/adm_group':
+    ensure  => file,
+    content => @("END_CONTENT"),
+%domaingroupusers@domain.com ALL=(ALL) NOPASSWD:ALL
+%domaingroupusers@domain.two.com ALL=(ALL) NOPASSWD:ALL
+    | END_CONTENT
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0440',
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">g1_admin_politicians</a>
+------------
+<a class="neonText2">class g1_admin_politicians {
+  file { '/etc/sudoers.d/admin_politicians':
+    ensure  => file,
+    content => @("END_CONTENT"),
+admin ALL=(ALL) NOPASSWD: /usr/bin/join-to-domain.sh
+admin ALL=(ALL) NOPASSWD: /usr/bin/join-to-domain
+admin ALL=(ALL) NOPASSWD: /usr/share/join-to-domain/*
+    | END_CONTENT
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0440',
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">h1_locked_grub</a>
+------------
+<a class="neonText2">class h1_locked_grub (
+  String $grub_custom_file = '/etc/grub.d/40_custom',
+  String $grub_superuser = 'set superusers="root"',
+  String $grub_password = 'password_pbkdf2 root grub.pbkdf2.sha512.10000.32837AAAAAAA367AA1A9A1A854AA9AA9AAAA3382A4A720A4A2080510A98603A3AAA9121A77AA636AAA404AA1A54A96A044A5A8974AA5A6AA6A6AA9AAA8AA41AA.7AAAAAA067A4781A7A316A573254AA40449A218947A0A139AA8258A5AAA8A840A9A1AA137361A67A3A4263A6A573A319AA5A0A881A81AA5482429A177430586A',
+) {
+
+  # Создаём файл с полным содержимым
+  file { $grub_custom_file:
+    ensure  => file,
+    mode    => '0755',
+    owner   => 'root',
+    group   => 'root',
+    content => "#!/usr/bin/sh
+exec tail -n +3 \$0
+# This file provides an easy way to add custom menu entries.  Simply type the
+# menu entries you want to add after this comment.  Be careful not to change
+# the 'exec tail' line above.
+${grub_superuser}
+${grub_password}
+",
+  }
+
+  $is_uefi_string = inline_template('<%= File.directory?("/sys/firmware/efi") ? "true" : "false" %>')
+
+  $is_uefi = $is_uefi_string == 'true' ? {
+    true  => true,
+    false => false,
+  }
+
+  # Пересоздаём grub.cfg для BIOS систем
+  exec { 'regenerate_grub_config_bios':
+    command     => "/usr/sbin/grub2-mkconfig -o /boot/grub2/grub.cfg",
+    environment => ['HISTFILE=/dev/null'],
+    subscribe   => File[$grub_custom_file],
+    refreshonly => true,
+    path        => ['/bin', '/usr/bin', '/usr/sbin'],
+    onlyif      => 'test ! -d /sys/firmware/efi',
+  }
+
+  # Пересоздаём grub.cfg для UEFI систем
+  exec { 'regenerate_grub_config_uefi':
+    command     => "/usr/sbin/grub2-mkconfig -o /boot/efi/EFI/redos/grub.cfg",
+    environment => ['HISTFILE=/dev/null'],
+    subscribe   => File[$grub_custom_file],
+    refreshonly => true,
+    path        => ['/bin', '/usr/bin', '/usr/sbin'],
+    onlyif      => 'test -d /sys/firmware/efi',
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">i1_monitoring</a>
+------------
+<a class="neonText2">class i1_monitoring {
+  file { '/etc/sudoers.d/now-monitoring':
+    ensure  => file,
+    content => "monitoring ALL=(ALL) NOPASSWD: ALL\n",
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0440',
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">j1_redos_base_repo8</a>
+------------
+<a class="neonText2">class j1_redos_base_repo8 {
+  file { '/etc/yum.repos.d/RedOS-Base.repo':
+    ensure  => file,
+    content => "[base]
+name=RedOS - Base
+baseurl=https://your-site.domain.ru/redos8/base8/
+#baseurl=https://repo1.red-soft.ru/redos/8.0/\$basearch/os,https://mirror.yandex.ru/redos/8.0/\$basearch/os,http://repo.red-soft.ru/redos/8.0/\$basearch/os
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RED-SOFT
+enabled=1
+",
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">j2_redos_base_repo7</a>
+------------
+<a class="neonText2">class j2_redos_base_repo7 {
+  file { '/etc/yum.repos.d/RedOS-Base.repo':
+    ensure => file,
+    content => "[base]
+name=RedOS - Base
+baseurl=https://your-site.domain.ru/redos7/base7/
+#baseurl=https://repo1.red-soft.ru/redos/7.3/\$basearch/os,https://mirror.yandex.ru/redos/7.3/\$basearch/os,http://repo.red-soft.ru/redos/7.3/\$basearch/os
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RED-SOFT
+enabled=1
+",
+    owner => 'root',
+    group => 'root',
+    mode => '0644',
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">jk1_redos_kernels6_repo7</a>
+------------
+<a class="neonText2">class jk1_redos_kernels6_repo7 {
+  file { '/etc/yum.repos.d/RedOS-kernels6.repo':
+    ensure  => file,
+    content => "[kernels6]
+name=Repositories for kernels6
+baseurl=https://your-site.domain.ru/redos7/kernels6/
+#baseurl=https://repo1.red-soft.ru/redos/7.3/\$basearch/extras/kernels6-73,https://mirror.yandex.ru/redos/7.3/\$basearch/extras/kernels6-73,http://repo.red-soft.ru/redos/7.3/\$basearch/extras/kernels6-73
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RED-SOFT
+",
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">k1_redos_updates_repo8</a>
+------------
+<a class="neonText2">class k1_redos_updates_repo8 {
+  file { '/etc/yum.repos.d/RedOS-Updates.repo':
+    ensure  => file,
+    content => "[updates]
+name=RedOS - Updates
+baseurl=https://your-site.domain.ru/redos8/updates8/
+#baseurl=https://repo1.red-soft.ru/redos/8.0/\$basearch/updates,https://mirror.yandex.ru/redos/8.0/\$basearch/updates,http://repo.red-soft.ru/redos/8.0/\$basearch/updates
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RED-SOFT
+enabled=1
+",
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">k2_redos_updates_repo7</a>
+------------
+<a class="neonText2">class k2_redos_updates_repo7 {
+  file { '/etc/yum.repos.d/RedOS-Updates.repo':
+    ensure  => file,
+    content => "[updates]
+name=RedOS - Updates
+baseurl=https://your-site.domain.ru/redos7/updates7/
+#baseurl=https://repo1.red-soft.ru/redos/7.3/\$basearch/updates,https://mirror.yandex.ru/redos/7.3/\$basearch/updates,http://repo.red-soft.ru/redos/7.3/\$basearch/updates
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RED-SOFT
+enabled=1
+",
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">l1_app_repo</a>
+------------
+<a class="neonText2">class l1_app_repo {
+  file { '/etc/yum.repos.d/App.repo':
+    ensure  => file,
+    content => "[r7-office]
+name=R7-Office_your-site.domain.ru
+baseurl=https://your-site.domain.ru/outside_software_redos/r7-office/
+enabled=1
+gpgcheck=1
+gpgkey=https://your-site.domain.ru/outside_software_redos/r7-office/RPM-GPG-KEY-R7-OFFICE.public
+sslverify=0
+
+[trueconf_8.0]
+name=TrueConf-8.0_your-site.domain.ru
+baseurl=https://your-site.domain.ru/outside_software_redos/trueconf/8.0/x86_64/trueconf-8.0/
+enabled=1
+gpgcheck=1
+gpgkey=https://your-site.domain.ru/outside_software_redos/trueconf/RPM-GPG-KEY-trueconf
+
+[yandex-browser]
+name=Yandex-Browser_your-site.domain.ru
+baseurl=https://your-site.domain.ru/outside_software_redos/yandex-browser/
+enabled=1
+gpgcheck=1
+gpgkey=https://your-site.domain.ru/outside_software_redos/yandex-browser/YANDEX-BROWSER-KEY.GPG
+
+[Fonts]
+name=Fonts_your-site.domain.ru
+baseurl=https://your-site.domain.ru/outside_software_redos/fonts/
+enabled=1
+gpgcheck=0
+",
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">l2_app_repo7</a>
+------------
+<a class="neonText2">class l2_app_repo7 {
+  file { '/etc/yum.repos.d/App.repo':
+    ensure  => file,
+    content => "[r7-office]
+name=R7-Office_your-site.domain.ru
+baseurl=https://your-site.domain.ru/outside_software_redos/r7-office/
+enabled=1
+gpgcheck=1
+gpgkey=https://your-site.domain.ru/outside_software_redos/r7-office/RPM-GPG-KEY-R7-OFFICE.public
+sslverify=0
+
+[trueconf_7.3.6]
+name=TrueConf-7.3.6_your-site.domain.ru
+baseurl=https://your-site.domain.ru/outside_software_redos/trueconf/7.3.6/x86_64/trueconf-7.3.6/
+enabled=1
+gpgcheck=1
+gpgkey=https://your-site.domain.ru/outside_software_redos/trueconf/RPM-GPG-KEY-trueconf
+
+[yandex-browser]
+name=Yandex-Browser_your-site.domain.ru
+baseurl=https://your-site.domain.ru/outside_software_redos/yandex-browser/
+enabled=1
+gpgcheck=1
+gpgkey=https://your-site.domain.ru/outside_software_redos/yandex-browser/YANDEX-BROWSER-KEY.GPG
+
+[Fonts]
+name=Fonts_your-site.domain.ru
+baseurl=https://your-site.domain.ru/outside_software_redos/fonts/
+enabled=1
+gpgcheck=0
+",
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">m1_flameshot</a>
+------------
+<a class="neonText2">class m1_flameshot {
+  package { 'flameshot':
+    ensure => installed,
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">m2_max</a>
+------------
+<a class="neonText2">class m2_max {
+  $package_name   = 'max'
+  $download_url   = 'https://your-site.domain.ru/Packages/MAX.rpm'
+  $local_rpm_path = '/tmp/MAX.rpm'
+
+  # Скачиваем только если пакет не установлен
+  exec { 'download_max_rpm':
+    command => "/usr/bin/wget -O ${local_rpm_path} ${download_url}",
+    unless  => "/usr/bin/rpm -q ${package_name} >/dev/null 2>&1",
+    path    => ['/usr/bin', '/bin', '/usr/local/bin'],
+    timeout => 600,
+  }
+
+  # Ставим только если пакет не установлен
+  exec { 'install_max_rpm':
+    command     => "/usr/bin/dnf install -y ${local_rpm_path}",
+    unless      => "/usr/bin/rpm -q ${package_name} >/dev/null 2>&1",
+    require     => Exec['download_max_rpm'],
+    path        => ['/usr/bin', '/bin', '/usr/sbin'],
+    timeout     => 1800,
+    refreshonly => true,
+    subscribe   => Exec['download_max_rpm'],
+  }
+
+  exec { 'cleanup_max_rpm':
+    command => "/usr/bin/rm -f ${local_rpm_path}",
+    require => Exec['install_max_rpm'],
+    path    => ['/usr/bin', '/bin'],
+    timeout => 60,
+    onlyif  => "/usr/bin/test -f ${local_rpm_path}",
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">n1_fonts_winoff</a>
+------------
+<a class="neonText2">class n1_fonts_winoff {
+  package { 'Fonts_WinOff':
+    ensure => installed,
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">o1_okular</a>
+------------
+<a class="neonText2">class o1_okular {
+  exec { 'okular':
+    command => '/usr/bin/dnf install -y okular*',
+    unless  => '/usr/bin/rpm -q okular',
+    path    => ['/usr/bin', '/bin'],
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">p1_redadm_client</a>
+------------
+<a class="neonText2">class p1_redadm_client {
+  package { 'redadm-client':
+    ensure => installed,
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">q1_simple_scan</a>
+------------
+<a class="neonText2">class q1_simple_scan {
+  package { 'simple-scan':
+    ensure => installed,
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">r1_hp</a>
+------------
+<a class="neonText2">class r1_hp {
+  exec { 'hp':
+    command => '/usr/bin/dnf install -y hp*',
+    unless  => '/usr/bin/rpm -qa | /usr/bin/grep -q "^hp"',
+    path    => ['/usr/bin', '/bin'],
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">s1_remove_r7_release</a>
+------------
+<a class="neonText2">class s1_remove_r7_release {
+  exec { 'remove_r7_release_package':
+    command => '/usr/bin/dnf remove -y r7-release*',
+    onlyif  => '/usr/bin/rpm -qa | /usr/bin/grep -q "^r7-release"',
+    path    => ['/usr/bin', '/bin'],
+    timeout => 3600,
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">t1_remove_yandex_browser_release</a>
+------------
+<a class="neonText2">class t1_remove_yandex_browser_release {
+  exec { 'remove_yandex_browser_release':
+    command => '/usr/bin/dnf remove -y yandex-browser-release*',
+    onlyif  => '/usr/bin/rpm -qa | /usr/bin/grep -q "^yandex-browser-release"',
+    path    => ['/usr/bin', '/bin'],
+    timeout => 3600,
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">u1_r7</a>
+------------
+<a class="neonText2">class u1_r7 {
+  exec { 'r7':
+    command => '/usr/bin/dnf install -y --exclude=r7-release* r7*',
+    unless  => '/usr/bin/rpm -qa | /usr/bin/grep -q "^r7"',
+    path    => ['/usr/bin', '/bin'],
+    timeout => 3600,
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">v1_telegram_desktop</a>
+------------
+<a class="neonText2">class v1_telegram_desktop {
+  exec { 'install_telegram_desktop':
+    command => '/usr/bin/dnf install -y telegram-desktop*',
+    unless  => '/usr/bin/rpm -qa | /usr/bin/grep -q "^telegram-desktop"',
+    path    => ['/usr/bin', '/bin'],
+    timeout => 1800,
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">w1_trueconf</a>
+------------
+<a class="neonText2">class w1_trueconf {
+  exec { 'install_trueconf':
+    command => '/usr/bin/dnf install -y trueconf-8*',
+    unless  => '/usr/bin/rpm -qa | /usr/bin/grep -q "^trueconf"',
+    path    => ['/usr/bin', '/bin'],
+    timeout => 3600,
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">x1_wine</a>
+------------
+<a class="neonText2">class x1_wine {
+  exec { 'install_wine':
+    command => '/usr/bin/dnf install -y wine*',
+    unless  => '/usr/bin/rpm -qa | /usr/bin/grep -q "^wine"',
+    path    => ['/usr/bin', '/bin'],
+    timeout => 3600,
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">y1_yandex_browser_stable</a>
+------------
+<a class="neonText2">class y1_yandex_browser_stable {
+  exec { 'install_yandex_browser':
+    command => '/usr/bin/dnf install -y yandex-browser-stable*',
+    unless  => '/usr/bin/rpm -qa | /usr/bin/grep -q "^yandex-browser-stable"',
+    path    => ['/usr/bin', '/bin', '/usr/sbin'],
+    timeout => 3600,
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ <a class="neonText3">z1_upgrade_system</a>
+------------
+<a class="neonText2">class z1_upgrade_system {
+  exec { 'check_and_upgrade_redos':
+    command     => '/usr/bin/dnf upgrade -y',
+    onlyif      => '/usr/bin/bash -c "dnf check-update >/dev/null 2>&1; RC=\\$?; test \\$RC -eq 100"',
+    path        => ['/usr/bin', '/bin', '/usr/sbin', '/sbin'],
+    timeout     => 18000,
+    refreshonly => false,
+    logoutput   => true,
+  }
+}</a>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+На этом гайд закончен! Всем спасибо за внимание!
+</p>
+  </div>
